@@ -4,6 +4,9 @@
 
 //Project includes
 #include "Renderer.h"
+
+#include <iostream>
+
 #include "Maths.h"
 #include "Matrix.h"
 #include "Material.h"
@@ -31,11 +34,14 @@ void Renderer::Render(Scene* pScene) const
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
-			float gradient = px / static_cast<float>(m_Width);
-			gradient += py / static_cast<float>(m_Width);
-			gradient /= 2.0f;
+			Vector3 rayDirection{};
+			rayDirection.x = 2 * ((px + 0.5) / m_Width) - 1;
+			rayDirection.y = 1 - 2 * ((py + 0.5) / m_Height);
+			rayDirection.z = 1;
 
-			ColorRGB finalColor{ gradient, gradient, gradient };
+			Ray hitray{ {0,0,0},rayDirection };
+
+			ColorRGB finalColor{ rayDirection.x , rayDirection.y, rayDirection.z };
 
 			//Update Color in Buffer
 			finalColor.MaxToOne();
