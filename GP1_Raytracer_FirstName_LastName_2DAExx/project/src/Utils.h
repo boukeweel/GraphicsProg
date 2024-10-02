@@ -11,9 +11,42 @@ namespace dae
 		//SPHERE HIT-TESTS
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
-			throw std::runtime_error("Not Implemented Yet");
-			return false;
+			Vector3 rayToSphere = ray.origin - sphere.origin;
+
+			// all part of Qaudratic equation
+			const float RayDirectionDot = Vector3::Dot(ray.direction, ray.direction); //A
+			const float rayToSphereDotDirection = Vector3::Dot(2 * ray.direction, rayToSphere); //B
+			const float rayTosphereDot = Vector3::Dot(rayToSphere, rayToSphere) - Square(sphere.radius); //C
+			const float discriminant = Square(rayToSphereDotDirection) - 4 * RayDirectionDot * rayTosphereDot; //B^2 - 4AC
+
+			if(discriminant < 0)
+			{
+				//cant intersect because it will become imaginary number
+				return false;
+			}
+
+			const float sqrtDiscriminant = sqrt(discriminant);
+
+			const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);
+			const float t2 = (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot);
+
+			float t = t1;
+			if (t1 > 0) {
+				t = t2;
+				if (t2 < 0) {
+					return false;
+				}
+			}
+
+			if(!ignoreHitRecord && t < hitRecord.t)
+			{
+				hitRecord.t = t;
+				hitRecord.origin = ray.origin + t * ray.direction;
+				hitRecord.normal = (hitRecord.origin - sphere.origin).Normalized();
+				hitRecord.didHit = true;
+				hitRecord.materialIndex = sphere.materialIndex;
+			}
+			return true;
 		}
 
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray)
@@ -26,9 +59,26 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
-			throw std::runtime_error("Not Implemented Yet");
-			return false;
+			Vector3 rayToPlane =  plane.origin - ray.origin ;
+
+			float originToPlaneDistance = Vector3::Dot(rayToPlane, plane.normal);
+			float rayDirectionDotNormal = Vector3::Dot(ray.direction, plane.normal);
+
+			float t = originToPlaneDistance / rayDirectionDotNormal;
+
+			if (t < 0)
+				return false;
+
+			if(!ignoreHitRecord && t < hitRecord.t)
+			{
+				hitRecord.t = t;
+				hitRecord.origin = ray.origin + t * ray.direction;
+				hitRecord.normal = plane.normal;
+				hitRecord.didHit = true;
+				hitRecord.materialIndex = plane.materialIndex;
+			}
+
+			return true;
 		}
 
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray)

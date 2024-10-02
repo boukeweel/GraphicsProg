@@ -4,9 +4,7 @@
 
 //Project includes
 #include "Renderer.h"
-
 #include <iostream>
-
 #include "Maths.h"
 #include "Matrix.h"
 #include "Material.h"
@@ -30,18 +28,31 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
+	float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	Vector3 rayDirection{};
+
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
-			Vector3 rayDirection{};
-			rayDirection.x = 2 * ((px + 0.5) / m_Width) - 1;
-			rayDirection.y = 1 - 2 * ((py + 0.5) / m_Height);
+			rayDirection.x = (2 * (px + 0.5f) / m_Width - 1) * aspectRatio;
+			rayDirection.y = 1 - 2 * (py + 0.5f) / m_Height;
 			rayDirection.z = 1;
 
-			Ray hitray{ {0,0,0},rayDirection };
+			Ray viewRay{ {0,0,0},rayDirection };
 
-			ColorRGB finalColor{ rayDirection.x , rayDirection.y, rayDirection.z };
+			HitRecord closetHit{ };
+
+			pScene->GetClosestHit(viewRay, closetHit);
+
+			//black BackGround
+			ColorRGB finalColor{};
+
+			if(closetHit.didHit)
+			{
+				//if we hit something set the finalcolor to the color of the hit object
+				finalColor = materials[closetHit.materialIndex]->Shade();
+			}
 
 			//Update Color in Buffer
 			finalColor.MaxToOne();
