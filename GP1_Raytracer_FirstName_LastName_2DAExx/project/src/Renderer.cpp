@@ -28,19 +28,24 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
-	float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
-	float FOV = tan(camera.fovAngle / 2);
-	Vector3 rayDirection{};
+	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	const float FOV = tan(camera.fovAngle / 2);
+	const Matrix cameraToWorld = camera.CalculateCameraToWorld();
+	Vector3 rayDirectionVS{};
 
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
-			rayDirection.x = (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * FOV;
-			rayDirection.y = (1 - 2 * (py + 0.5f) / m_Height) * FOV;
-			rayDirection.z = 1;
+			rayDirectionVS.x = (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * FOV;
+			rayDirectionVS.y = (1 - 2 * (py + 0.5f) / m_Height) * FOV;
+			rayDirectionVS.z = 1;
 
-			Ray viewRay{ camera.origin,rayDirection };
+
+			Vector3 rayDirectionWS{ cameraToWorld.TransformVector(rayDirectionVS) };
+
+
+			Ray viewRay{ camera.origin,rayDirectionWS };
 
 			HitRecord closetHit{ };
 

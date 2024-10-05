@@ -121,8 +121,8 @@ namespace dae {
 	{
 		Matrix result{};
 		result.data[0] = { 0,0,0,0 };
-		result.data[1] = { 0, cos(pitch), -sin(pitch), 0 };
-		result.data[2] = { 0, sin(pitch), cos(pitch), 0 };
+		result.data[1] = { 0, cosf(pitch), -sinf(pitch), 0 };
+		result.data[2] = { 0, sinf(pitch), cosf(pitch), 0 };
 		result.data[3] = { 0,0, 0, 1 };
 		return result;
 	}
@@ -130,9 +130,9 @@ namespace dae {
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
 		Matrix result{};
-		result.data[0] = { cos(yaw),0,sin(yaw),0 };
+		result.data[0] = { cosf(yaw),0,sinf(yaw),0 };
 		result.data[1] = { 0, 1, 0, 0 };
-		result.data[2] = { -sin(yaw), 0, cos(yaw), 0 };
+		result.data[2] = { -sinf(yaw), 0, cosf(yaw), 0 };
 		result.data[3] = { 0,0, 0, 1 };
 		return result;
 	}
@@ -141,8 +141,8 @@ namespace dae {
 	{
 
 		Matrix result{};
-		result.data[0] = { cos(roll),-sin(roll),0,0 };
-		result.data[1] = { sin(roll), cos(roll), 0, 0 };
+		result.data[0] = { cosf(roll),-sinf(roll),0,0 };
+		result.data[1] = { sinf(roll), cosf(roll), 0, 0 };
 		result.data[2] = { 0, 0, 0, 0 };
 		result.data[3] = { 0,0, 0, 1 };
 		

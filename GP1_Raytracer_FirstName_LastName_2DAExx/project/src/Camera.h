@@ -33,9 +33,17 @@ namespace dae
 
 		Matrix CalculateCameraToWorld()
 		{
-			//todo: W2
-			throw std::runtime_error("Not Implemented Yet");
-			return {};
+			Vector3 right = Vector3::Cross(Vector3::UnitY, forward).Normalized();
+			Vector3 up = Vector3::Cross(forward, right).Normalized();
+
+			Matrix result{
+				right,
+				up,
+				forward,
+				origin
+			};
+
+			return result;
 		}
 
 		void Update(Timer* pTimer)
