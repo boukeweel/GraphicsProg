@@ -31,14 +31,15 @@ namespace dae {
 
 	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
-		for (auto plane : m_PlaneGeometries)
-		{
-			GeometryUtils::HitTest_Plane(plane, ray, closestHit);
-		}
 		for (auto sphere : m_SphereGeometries)
 		{
 			GeometryUtils::HitTest_Sphere(sphere, ray, closestHit);
 		}
+		for (auto plane : m_PlaneGeometries)
+		{
+			GeometryUtils::HitTest_Plane(plane, ray, closestHit);
+		}
+		
 		/*for (auto Traingle : m_TriangleMeshGeometries)
 		{
 			

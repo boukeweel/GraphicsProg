@@ -29,17 +29,18 @@ void Renderer::Render(Scene* pScene) const
 	auto& lights = pScene->GetLights();
 
 	float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	float FOV = tan(camera.fovAngle / 2);
 	Vector3 rayDirection{};
 
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
-			rayDirection.x = (2 * (px + 0.5f) / m_Width - 1) * aspectRatio;
-			rayDirection.y = 1 - 2 * (py + 0.5f) / m_Height;
+			rayDirection.x = (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * FOV;
+			rayDirection.y = (1 - 2 * (py + 0.5f) / m_Height) * FOV;
 			rayDirection.z = 1;
 
-			Ray viewRay{ {0,0,0},rayDirection };
+			Ray viewRay{ camera.origin,rayDirection };
 
 			HitRecord closetHit{ };
 
