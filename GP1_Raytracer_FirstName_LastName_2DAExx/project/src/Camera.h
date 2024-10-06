@@ -28,6 +28,10 @@ namespace dae
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
 
+		const float MoveSpeedKey{5.f};
+		const float MoveSpeedMouse{ 0.01f };
+		const float RotatedSpeed{ 0.01f };
+
 		Matrix cameraToWorld{};
 
 
@@ -50,16 +54,67 @@ namespace dae
 		{
 			const float deltaTime = pTimer->GetElapsed();
 
-			//Keyboard Input
-			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
-
+			Vector3 InputVector{};
 
 			//Mouse Input
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
-			//todo: W2
-			//throw std::runtime_error("Not Implemented Yet");
+			const bool MouseRightPressed{ (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0 };
+			const bool MouseLeftPressed{ (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0 };
+
+			if (MouseRightPressed && MouseLeftPressed)
+			{
+				InputVector.y -= mouseY * MoveSpeedMouse;
+			}
+			else if (!MouseRightPressed && MouseLeftPressed)
+			{
+				InputVector.z -= mouseY * MoveSpeedMouse;
+				totalYaw -= mouseX * RotatedSpeed;
+			}
+			else if (MouseRightPressed && !MouseLeftPressed)
+			{
+				totalPitch -= mouseY * RotatedSpeed;
+				totalYaw -= mouseX * RotatedSpeed;
+			}
+
+			//Keyboard Input
+			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
+
+
+			if (pKeyboardState[SDL_SCANCODE_S])
+				InputVector.z -= 1;
+
+			if (pKeyboardState[SDL_SCANCODE_W])
+				InputVector.z += 1;
+
+			if (pKeyboardState[SDL_SCANCODE_A])
+				InputVector.x -= 1;
+
+			if (pKeyboardState[SDL_SCANCODE_D])
+				InputVector.x += 1;
+
+
+			/*const Matrix yawRotation{ Matrix::CreateRotationY(totalYaw) };
+			const Matrix pitchRotation{ Matrix::CreateRotationX(totalPitch) };
+
+
+			const Matrix pitchYawRotation{pitchRotation * yawRotation};*/
+
+
+			const Matrix pitchYawRotation
+			{
+				Vector3{cosf(totalYaw), 0, sinf(totalYaw)},
+				Vector3{sinf(totalYaw) * sinf(totalPitch), cosf(totalPitch), -sinf(totalPitch) * cosf(totalYaw)},
+				Vector3{-cosf(totalPitch) * sinf(totalYaw), sinf(totalPitch), cosf(totalPitch) * cosf(totalYaw)},
+				Vector3::Zero
+			};
+
+			forward = pitchYawRotation.TransformVector(Vector3::UnitZ);
+
+			InputVector = pitchYawRotation.TransformVector(InputVector);
+
+			origin += InputVector * deltaTime * MoveSpeedKey;
 		}
 	};
 }
