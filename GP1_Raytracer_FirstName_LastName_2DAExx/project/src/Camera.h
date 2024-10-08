@@ -56,6 +56,22 @@ namespace dae
 
 			Vector3 InputVector{};
 
+			//Keyboard Input
+			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
+
+
+			if (pKeyboardState[SDL_SCANCODE_S])
+				InputVector.z -= 1;
+
+			if (pKeyboardState[SDL_SCANCODE_W])
+				InputVector.z += 1;
+
+			if (pKeyboardState[SDL_SCANCODE_A])
+				InputVector.x -= 1;
+
+			if (pKeyboardState[SDL_SCANCODE_D])
+				InputVector.x += 1;
+
 			//Mouse Input
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
@@ -78,29 +94,11 @@ namespace dae
 				totalYaw -= mouseX * RotatedSpeed;
 			}
 
-			//Keyboard Input
-			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
 
+			/*const Matrix yawRotation{ Matrix::CreateRotationX(totalPitch) };
+			const Matrix pitchRotation{ Matrix::CreateRotationY(totalYaw) };
 
-			if (pKeyboardState[SDL_SCANCODE_S])
-				InputVector.z -= 1;
-
-			if (pKeyboardState[SDL_SCANCODE_W])
-				InputVector.z += 1;
-
-			if (pKeyboardState[SDL_SCANCODE_A])
-				InputVector.x -= 1;
-
-			if (pKeyboardState[SDL_SCANCODE_D])
-				InputVector.x += 1;
-
-
-			/*const Matrix yawRotation{ Matrix::CreateRotationY(totalYaw) };
-			const Matrix pitchRotation{ Matrix::CreateRotationX(totalPitch) };
-
-
-			const Matrix pitchYawRotation{pitchRotation * yawRotation};*/
-
+			const Matrix pitchYawRotation{yawRotation * pitchRotation};*/
 
 			const Matrix pitchYawRotation
 			{

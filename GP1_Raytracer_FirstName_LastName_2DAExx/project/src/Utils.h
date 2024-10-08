@@ -27,16 +27,23 @@ namespace dae
 
 			const float sqrtDiscriminant = sqrt(discriminant);
 
-			const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);
+			/*const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);*/
 			const float t2 = (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot);
 
-			float t = t1;
-			if (t1 > 0) {
+			float t = t2;
+			if (t2 < 0)
+			{
+				return false;
+			}
+			/*if (t2 < ray.min) {
+				return false;
+			}*/
+			/*if (t1 > 0) {
 				t = t2;
 				if (t2 < 0) {
 					return false;
 				}
-			}
+			}*/
 
 			if(!ignoreHitRecord && t < hitRecord.t)
 			{
@@ -59,14 +66,14 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			Vector3 rayToPlane =  plane.origin - ray.origin ;
+			const Vector3 rayToPlane =  plane.origin - ray.origin ;
 
-			float originToPlaneDistance = Vector3::Dot(rayToPlane, plane.normal);
-			float rayDirectionDotNormal = Vector3::Dot(ray.direction, plane.normal);
+			const float originToPlaneDistance = Vector3::Dot(rayToPlane, plane.normal);
+			const float rayDirectionDotNormal = Vector3::Dot(plane.normal, ray.direction);
 
-			float t = originToPlaneDistance / rayDirectionDotNormal;
+			const float t = originToPlaneDistance / rayDirectionDotNormal;
 
-			if (t < 0)
+			if (t < ray.min || t > ray.max)
 				return false;
 
 			if(!ignoreHitRecord && t < hitRecord.t)
@@ -123,9 +130,8 @@ namespace dae
 		//Direction from target to light
 		inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
 		{
-			//todo W3
-			throw std::runtime_error("Not Implemented Yet");
-			return {};
+			const Vector3 result = light.origin - origin;
+			return result;
 		}
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)

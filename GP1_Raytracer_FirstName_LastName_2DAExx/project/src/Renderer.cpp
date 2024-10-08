@@ -44,7 +44,6 @@ void Renderer::Render(Scene* pScene) const
 
 			Vector3 rayDirectionWS{ cameraToWorld.TransformVector(rayDirectionVS) };
 
-
 			Ray viewRay{ camera.origin,rayDirectionWS };
 
 			HitRecord closetHit{ };
@@ -58,6 +57,20 @@ void Renderer::Render(Scene* pScene) const
 			{
 				//if we hit something set the finalcolor to the color of the hit object
 				finalColor = materials[closetHit.materialIndex]->Shade();
+
+				const Vector3 HitPointOffset{ closetHit.origin + closetHit.normal * 0.001f };
+				//adding shadows
+				for (const Light& light : lights)
+				{
+					Vector3 rayToLight{ LightUtils::GetDirectionToLight(light, HitPointOffset) };
+					float distanceToLight{ rayToLight.Magnitude() };
+
+					Ray newRay(HitPointOffset, rayToLight.Normalized(), 0.001f,distanceToLight - 0.001f);
+					if (pScene->DoesHit(newRay))
+					{
+						finalColor *= 0.5f;
+					}
+				}
 			}
 
 			//Update Color in Buffer
