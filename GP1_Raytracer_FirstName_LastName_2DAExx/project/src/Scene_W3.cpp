@@ -1,6 +1,7 @@
 #include "Scene_W3.h"
 #include "Utils.h"
 #include "Material.h"
+#include "Renderer.h"
 
 void dae::Scene_W3::Initialize()
 {
@@ -29,8 +30,8 @@ void dae::Scene_W3::Initialize()
 	AddSphere(Vector3{ 0.f,1.f,0.f }, .75, matCT_GrayMediumMetal);
 	AddSphere(Vector3{ 1.75f,1.f,0.f }, .75, matCT_GraySmoothMetal);
 	AddSphere(Vector3{ -1.75f,3.f,0.f }, .75, matCT_GrayRoughPlastic);
-	AddSphere(Vector3{ -1.75f,3.f,0.f }, .75, matCT_GrayMediumPlastic);
-	AddSphere(Vector3{ -1.75f,3.f,0.f }, .75, matCT_GraySmoothPlastic);
+	AddSphere(Vector3{ 0.f,3.f,0.f }, .75, matCT_GrayMediumPlastic);
+	AddSphere(Vector3{ 1.75f,3.f,0.f }, .75, matCT_GraySmoothPlastic);
 
 	//lights
 	AddPointLight(Vector3{ 0.f,5.f,5.f }, 50.f, ColorRGB{ 1.f,.61f,.45f }); //BackLight

@@ -46,31 +46,55 @@ void Renderer::Render(Scene* pScene) const
 
 			Ray viewRay{ camera.origin,rayDirectionWS };
 
-			HitRecord closetHit{ };
+			HitRecord closestHit{ };
 
-			pScene->GetClosestHit(viewRay, closetHit);
+			pScene->GetClosestHit(viewRay, closestHit);
 
 			//black BackGround
 			ColorRGB finalColor{};
 
-			if(closetHit.didHit)
+			if(closestHit.didHit)
 			{
 				//if we hit something set the finalcolor to the color of the hit object
-				finalColor = materials[closetHit.materialIndex]->Shade();
+				
 
-				const Vector3 HitPointOffset{ closetHit.origin + closetHit.normal * 0.001f };
+				const Vector3 HitPointOffset{ closestHit.origin + closestHit.normal * 0.001f };
 				//adding shadows
 				for (const Light& light : lights)
 				{
 					Vector3 rayToLight{ LightUtils::GetDirectionToLight(light, HitPointOffset) };
 					float distanceToLight{ rayToLight.Magnitude() };
 
-					Ray newRay(HitPointOffset, rayToLight.Normalized(), 0.001f,distanceToLight - 0.001f);
-					if (pScene->DoesHit(newRay))
+					
+
+					const float cosineLaw = std::max(0.f, Vector3::Dot(closestHit.normal, rayToLight.Normalized()));
+
+					switch (m_CurrentLightingMode)
 					{
-						finalColor *= 0.5f;
+					case LightingMode::ObservedArea:
+						finalColor += ColorRGB(1.f, 1.f, 1.f) * cosineLaw;
+						break;
+					case LightingMode::Radiance:
+						finalColor += LightUtils::GetRadiance(light, closestHit.origin);
+						break;
+					case LightingMode::BRDF:
+						finalColor = materials[closestHit.materialIndex]->Shade();
+						break;
+					case LightingMode::Combined:
+						finalColor = LightUtils::GetRadiance(light, closestHit.origin) * cosineLaw;
+						break;
 					}
+					//shadowRay
+					Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
+					//Create HardShadow
+					if (m_ShadowsEnabled && pScene->DoesHit(ShadowRay))
+					{
+						finalColor *= 0.6f;
+					}
+
+					
 				}
+				
 			}
 
 			//Update Color in Buffer
@@ -91,4 +115,29 @@ void Renderer::Render(Scene* pScene) const
 bool Renderer::SaveBufferToImage() const
 {
 	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
+}
+
+void dae::Renderer::CycleLightingMode()
+{
+	std::cout << std::endl;
+	switch (m_CurrentLightingMode)
+	{
+	case LightingMode::ObservedArea:
+		m_CurrentLightingMode = LightingMode::Radiance;
+		std::cout << "Current Lighting mode Radiance" << std::endl;
+		break;
+	case LightingMode::Radiance:
+		m_CurrentLightingMode = LightingMode::BRDF;
+		std::cout << "Current Lighting mode BRDF" << std::endl;
+		break;
+	case LightingMode::BRDF:
+		m_CurrentLightingMode = LightingMode::Combined;
+		std::cout << "Current Lighting mode Combined" << std::endl;
+		break;
+	case LightingMode::Combined:
+		m_CurrentLightingMode = LightingMode::ObservedArea;
+		std::cout << "Current Lighting mode ObservedArea" << std::endl;
+		break;
+	}
+	std::cout << std::endl;
 }

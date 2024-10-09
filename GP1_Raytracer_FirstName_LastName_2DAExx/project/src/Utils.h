@@ -33,7 +33,7 @@ namespace dae
 			float t{};
 			
 			//if t1 is bigger than 0 take safe t1, if not take infinity, same for t2, than take the smalles one of the 2
-			t = fmin(t1 > 0 ? t1 : INFINITY, t2 > 0 ? t2 : INFINITY);
+			t = fmin(t1 > ray.min ? t1 : INFINITY, t2 > ray.min ? t2 : INFINITY);
 
 			if (t == INFINITY) {
 				return false; // Both are negative, sphere is behind the ray
@@ -130,8 +130,16 @@ namespace dae
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)
 		{
-			//todo W3
-			throw std::runtime_error("Not Implemented Yet");
+			if(light.type == LightType::Point)
+			{
+				return light.color * (light.intensity / Square((light.origin - target).Magnitude()));
+			}
+
+			if(light.type == LightType::Directional)
+			{
+				return light.color * light.intensity;
+			}
+
 			return {};
 		}
 	}
