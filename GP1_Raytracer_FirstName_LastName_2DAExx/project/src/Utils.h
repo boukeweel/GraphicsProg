@@ -27,23 +27,17 @@ namespace dae
 
 			const float sqrtDiscriminant = sqrt(discriminant);
 
-			/*const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);*/
+			const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);
 			const float t2 = (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot);
 
-			float t = t2;
-			if (t2 < 0)
-			{
-				return false;
+			float t{};
+			
+			//if t1 is bigger than 0 take safe t1, if not take infinity, same for t2, than take the smalles one of the 2
+			t = fmin(t1 > 0 ? t1 : INFINITY, t2 > 0 ? t2 : INFINITY);
+
+			if (t == INFINITY) {
+				return false; // Both are negative, sphere is behind the ray
 			}
-			/*if (t2 < ray.min) {
-				return false;
-			}*/
-			/*if (t1 > 0) {
-				t = t2;
-				if (t2 < 0) {
-					return false;
-				}
-			}*/
 
 			if(!ignoreHitRecord && t < hitRecord.t)
 			{
