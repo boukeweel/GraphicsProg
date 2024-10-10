@@ -83,12 +83,12 @@ void Renderer::Render(Scene* pScene) const
 						break;
 					}
 
-					//shadowRay
-					Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
 					//Create HardShadow
-					if (m_ShadowsEnabled && pScene->DoesHit(ShadowRay))
+					if (m_ShadowsEnabled)
 					{
-						finalColor *= 0.5f;
+						Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
+						if(pScene->DoesHit(ShadowRay))
+							finalColor *= 0.5f;
 					}
 
 					
