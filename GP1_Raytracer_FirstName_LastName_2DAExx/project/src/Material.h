@@ -35,8 +35,7 @@ namespace dae
 	{
 	public:
 		Material_SolidColor(const ColorRGB& color) : m_Color(color)
-		{
-		}
+		{}
 
 		ColorRGB Shade(const HitRecord& hitRecord, const Vector3& l, const Vector3& v) override
 		{
@@ -59,9 +58,7 @@ namespace dae
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return m_DiffuseColor;
+			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
 		}
 
 	private:
@@ -79,14 +76,12 @@ namespace dae
 		Material_LambertPhong(const ColorRGB& diffuseColor, float kd, float ks, float phongExponent) :
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(kd), m_SpecularReflectance(ks),
 			m_PhongExponent(phongExponent)
-		{
-		}
+		{}
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return m_DiffuseColor;
+			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor)
+			+ BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, -v, hitRecord.normal);
 		}
 
 	private:
@@ -104,18 +99,11 @@ namespace dae
 	public:
 		Material_CookTorrence(const ColorRGB& albedo, float metalness, float roughness) :
 			m_Albedo(albedo), m_Metalness(metalness), m_Roughness(roughness)
-		{
-		}
+		{}
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-
-			ColorRGB result;
-
-
-			return result;
+			return {};
 		}
 
 	private:

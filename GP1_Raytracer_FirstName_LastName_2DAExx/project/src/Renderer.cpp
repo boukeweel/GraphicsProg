@@ -55,19 +55,15 @@ void Renderer::Render(Scene* pScene) const
 
 			if(closestHit.didHit)
 			{
-				//if we hit something set the finalcolor to the color of the hit object
-				
-
 				const Vector3 HitPointOffset{ closestHit.origin + closestHit.normal * 0.001f };
 				//adding shadows
 				for (const Light& light : lights)
 				{
 					Vector3 rayToLight{ LightUtils::GetDirectionToLight(light, HitPointOffset) };
 					float distanceToLight{ rayToLight.Magnitude() };
-
+					Vector3 l = rayToLight.Normalized();
 					
-
-					const float cosineLaw = std::max(0.f, Vector3::Dot(closestHit.normal, rayToLight.Normalized()));
+					const float cosineLaw = std::max(0.f, Vector3::Dot(closestHit.normal, l));
 
 					switch (m_CurrentLightingMode)
 					{
@@ -78,18 +74,21 @@ void Renderer::Render(Scene* pScene) const
 						finalColor += LightUtils::GetRadiance(light, closestHit.origin);
 						break;
 					case LightingMode::BRDF:
-						finalColor = materials[closestHit.materialIndex]->Shade();
+						finalColor += materials[closestHit.materialIndex]->Shade(closestHit, -l,viewRay.direction);
 						break;
 					case LightingMode::Combined:
-						finalColor = LightUtils::GetRadiance(light, closestHit.origin) * cosineLaw;
+						finalColor += LightUtils::GetRadiance(light, closestHit.origin)
+						* materials[closestHit.materialIndex]->Shade(closestHit, -l, viewRay.direction)
+						* cosineLaw;
 						break;
 					}
+
 					//shadowRay
 					Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
 					//Create HardShadow
 					if (m_ShadowsEnabled && pScene->DoesHit(ShadowRay))
 					{
-						finalColor *= 0.6f;
+						finalColor *= 0.5f;
 					}
 
 					

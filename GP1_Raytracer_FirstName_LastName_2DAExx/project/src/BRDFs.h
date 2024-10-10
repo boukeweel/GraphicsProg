@@ -12,16 +12,12 @@ namespace dae
 		 */
 		static ColorRGB Lambert(float kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			return {(cd * kd) / PI};
 		}
 
 		static ColorRGB Lambert(const ColorRGB& kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			return {(cd * kd) / PI};
 		}
 
 		/**
@@ -35,9 +31,9 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			Vector3 reflect{ l - 2 * (Vector3::Dot(n, l)) * n };
+			float cosAlpha{ std::max(Vector3::Dot(reflect, v),0.f) };
+			return ColorRGB{1.f,1.f,1.f} * ks * std::pow(cosAlpha,exp);
 		}
 
 		/**
@@ -50,7 +46,6 @@ namespace dae
 		static ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const ColorRGB& f0)
 		{
 			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
 			return {};
 		}
 

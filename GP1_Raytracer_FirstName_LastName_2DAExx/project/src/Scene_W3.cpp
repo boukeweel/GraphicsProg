@@ -25,6 +25,14 @@ void dae::Scene_W3::Initialize()
 	AddPlane(Vector3{ 5.f,0.f,0.f }, Vector3{ -1.f,0.f,0.f }, matLamber_GrayBlue);  //right
 	AddPlane(Vector3{ -5.f,0.f,0.f }, Vector3{ 1.f,0.f,0.f }, matLamber_GrayBlue);  // left
 
+	/*const auto matLambertPhong1 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 3.f));
+	const auto matLambertPhong2 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 15.f));
+	const auto matLambertPhong3 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 50.f));
+
+	AddSphere(Vector3{ -1.75f,1.f,0.f }, .75, matLambertPhong1);
+	AddSphere(Vector3{ 0.f,1.f,0.f }, .75, matLambertPhong2);
+	AddSphere(Vector3{ 1.75f,1.f,0.f }, .75, matLambertPhong3);*/
+
 	//spheres
 	AddSphere(Vector3{ -1.75f,1.f,0.f }, .75, matCT_GrayRoughMetal);
 	AddSphere(Vector3{ 0.f,1.f,0.f }, .75, matCT_GrayMediumMetal);
