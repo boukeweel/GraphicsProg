@@ -108,7 +108,7 @@ namespace dae
 			ColorRGB f0{ m_Metalness == 0.f ? ColorRGB{0.04f,0.04f,0.04f} : m_Albedo };
 			const ColorRGB fersnel{ BRDF::FresnelFunction_Schlick(h,v.Normalized(),f0)};
 
-			return {};
+			return fersnel;
 		}
 
 	private:
