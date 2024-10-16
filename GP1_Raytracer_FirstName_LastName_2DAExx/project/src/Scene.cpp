@@ -64,6 +64,12 @@ namespace dae {
 			if(GeometryUtils::HitTest_Plane(plane, ray))
 				return true;
 		}
+		for (Triangle triangle : m_Triangles)
+		{
+			if(GeometryUtils::HitTest_Triangle(triangle,ray))
+				return true;
+		}
+
 		/*for (auto Traingle : m_TriangleMeshGeometries)
 		{
 

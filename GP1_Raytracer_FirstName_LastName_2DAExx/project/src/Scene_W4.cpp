@@ -19,7 +19,7 @@ void dae::Scene_W4::Initialize()
 	AddPlane(Vector3{ -5.f,0.f,0.f }, Vector3{ 1.f,0.f,0.f }, matLambert_GrayBlue);  // left
 
 	auto triangle = Triangle{ {-.75f,.5f,0.f},{-.75f,2.f,0.f},{.75f,.5f,0.f} };
-	triangle.cullMode = TriangleCullMode::NoCulling;
+	triangle.cullMode = TriangleCullMode::BackFaceCulling;
 	triangle.materialIndex = matLambert_White;
 
 	m_Triangles.emplace_back(triangle);

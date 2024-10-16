@@ -97,8 +97,24 @@ namespace dae
 			const Vector3 b_Vector{ triangle.v2 - triangle.v0 };
 
 			const Vector3 normal{ Vector3::Cross(a_Vector,b_Vector).Normalized() };
+			const float normalDotDirection{ Vector3::Dot(normal,ray.direction) };
 
-			if(Vector3::Dot(normal,ray.direction) == 0.f)
+			if(!ignoreHitRecord)
+			{
+				switch (triangle.cullMode)
+				{
+				case TriangleCullMode::BackFaceCulling:
+					if (normalDotDirection > 0.f) return false; // Ignore back faces
+					break;
+				case TriangleCullMode::FrontFaceCulling:
+					if (normalDotDirection < 0.f) return false; // Ignore front faces
+					break;
+				case TriangleCullMode::NoCulling:
+					break;
+				}
+			}
+
+			if(normalDotDirection == 0.f)
 			{
 				return false;
 			}
