@@ -41,7 +41,6 @@ void Renderer::Render(Scene* pScene) const
 			rayDirectionVS.y = (1 - 2 * (py + 0.5f) / m_Height) * FOV;
 			rayDirectionVS.z = 1;
 
-
 			Vector3 rayDirectionWS{ cameraToWorld.TransformVector(rayDirectionVS.Normalized()) };
 
 			Ray viewRay{ camera.origin,rayDirectionWS.Normalized() };
@@ -94,9 +93,7 @@ void Renderer::Render(Scene* pScene) const
 						* cosineLaw;
 						break;
 					}
-					
 				}
-				
 			}
 
 			//Update Color in Buffer
