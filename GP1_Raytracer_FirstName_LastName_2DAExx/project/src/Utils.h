@@ -32,10 +32,11 @@ namespace dae
 
 			float t{};
 			
-			//if t1 is bigger than 0 take safe t1, if not take infinity, same for t2, than take the smalles one of the 2
-			t = fmin(t1 > ray.min ? t1 : INFINITY, t2 > ray.min ? t2 : INFINITY);
+			////if t1 is bigger than 0 take t1, if not take infinity, same for t2, than take the smallest one of the 2
+			t = fmin(t1 > ray.min ? t1 : ray.max + 1, t2 > ray.min ? t2 : ray.max + 1);
 
-			if (t == INFINITY) {
+
+			if (t >= ray.max + 1) {
 				return false; // Both are negative, sphere is behind the ray
 			}
 

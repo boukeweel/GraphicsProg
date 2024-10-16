@@ -103,12 +103,26 @@ namespace dae
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			Vector3 h = (v - l).Normalized();
+			Vector3 h = (v + l).Normalized();
 
 			ColorRGB f0{ m_Metalness == 0.f ? ColorRGB{0.04f,0.04f,0.04f} : m_Albedo };
-			const ColorRGB fersnel{ BRDF::FresnelFunction_Schlick(h,v.Normalized(),f0)};
+			const ColorRGB f{ BRDF::FresnelFunction_Schlick(h,v,f0)};
+			const float d{ BRDF::NormalDistribution_GGX(hitRecord.normal,h,m_Roughness) };
+			const float g{ BRDF::GeometryFunction_Smith(hitRecord.normal,v,l,m_Roughness) };
 
-			return fersnel;
+			const float viewDotNormal{ Vector3::Dot(v,hitRecord.normal) };
+			const float lightDotNormal{ Vector3::Dot(l,hitRecord.normal) };
+
+			ColorRGB FDG{ f * d * g};
+
+			ColorRGB specular{ FDG / (4.f * viewDotNormal * lightDotNormal) };
+			specular.MaxToOne();
+
+			ColorRGB kd{ m_Metalness == 0.f ? ColorRGB{1.f,1.f,1.f} - f : colors::Black };
+			ColorRGB diffuse = BRDF::Lambert(kd, m_Albedo);
+
+			return diffuse + specular;
+				
 		}
 
 	private:
@@ -118,3 +132,4 @@ namespace dae
 	};
 #pragma endregion
 }
+ 

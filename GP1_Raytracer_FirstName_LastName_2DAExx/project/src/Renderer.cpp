@@ -42,9 +42,9 @@ void Renderer::Render(Scene* pScene) const
 			rayDirectionVS.z = 1;
 
 
-			Vector3 rayDirectionWS{ cameraToWorld.TransformVector(rayDirectionVS) };
+			Vector3 rayDirectionWS{ cameraToWorld.TransformVector(rayDirectionVS.Normalized()) };
 
-			Ray viewRay{ camera.origin,rayDirectionWS };
+			Ray viewRay{ camera.origin,rayDirectionWS.Normalized() };
 
 			HitRecord closestHit{ };
 
@@ -56,13 +56,25 @@ void Renderer::Render(Scene* pScene) const
 			if(closestHit.didHit)
 			{
 				const Vector3 HitPointOffset{ closestHit.origin + closestHit.normal * 0.001f };
+				const Vector3 v{ -viewRay.direction };
 				//adding shadows
 				for (const Light& light : lights)
 				{
 					Vector3 rayToLight{ LightUtils::GetDirectionToLight(light, HitPointOffset) };
 					float distanceToLight{ rayToLight.Magnitude() };
 					Vector3 l = rayToLight.Normalized();
-					
+
+					//Create HardShadow
+					if (m_ShadowsEnabled)
+					{
+						Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
+						if (pScene->DoesHit(ShadowRay))
+						{
+							//not sure why it works but it works so super cool
+							continue;
+						}
+
+					}
 					const float cosineLaw = std::max(0.f, Vector3::Dot(closestHit.normal, l));
 
 					switch (m_CurrentLightingMode)
@@ -74,23 +86,14 @@ void Renderer::Render(Scene* pScene) const
 						finalColor += LightUtils::GetRadiance(light, closestHit.origin);
 						break;
 					case LightingMode::BRDF:
-						finalColor += materials[closestHit.materialIndex]->Shade(closestHit, -l,viewRay.direction);
+						finalColor += materials[closestHit.materialIndex]->Shade(closestHit, l, v);
 						break;
 					case LightingMode::Combined:
 						finalColor += LightUtils::GetRadiance(light, closestHit.origin)
-						* materials[closestHit.materialIndex]->Shade(closestHit, -l, viewRay.direction)
+						* materials[closestHit.materialIndex]->Shade(closestHit, l, v)
 						* cosineLaw;
 						break;
 					}
-
-					//Create HardShadow
-					if (m_ShadowsEnabled)
-					{
-						Ray ShadowRay(HitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
-						if(pScene->DoesHit(ShadowRay))
-							finalColor *= 0.5f;
-					}
-
 					
 				}
 				

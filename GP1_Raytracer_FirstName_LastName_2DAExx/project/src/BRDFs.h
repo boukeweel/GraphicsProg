@@ -31,7 +31,7 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			Vector3 reflect{ l - 2 * (Vector3::Dot(n, l)) * n };
+			Vector3 reflect{ l - 2.f * (Vector3::Dot(n, l)) * n };
 			float cosAlpha{ std::max(Vector3::Dot(reflect, v),0.f) };
 			return ColorRGB{1.f,1.f,1.f} * ks * std::pow(cosAlpha,exp);
 		}
@@ -45,7 +45,7 @@ namespace dae
 		 */
 		static ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const ColorRGB& f0)
 		{
-			return f0 + (ColorRGB(1.0f, 1.0f, 1.0f) - f0) * pow((1-Vector3::Dot(h,v)),5);
+			return f0 + (ColorRGB(1.0f, 1.0f, 1.0f) - f0) * pow((1.f-Vector3::Dot(h,v)),5);
 		}
 
 		/**
@@ -57,9 +57,13 @@ namespace dae
 		 */
 		static float NormalDistribution_GGX(const Vector3& n, const Vector3& h, float roughness)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			const float a{ Square(roughness) };
+			const float normalDotHalfSqr{ Square(Vector3::Dot(n,h)) };
+			const float denomPart{ normalDotHalfSqr * (Square(a) - 1.f) + 1.f };
+			const float ggxDenom {PI * Square(denomPart) };
+
+
+			return Square(a) / ggxDenom;
 		}
 
 
@@ -72,9 +76,12 @@ namespace dae
 		 */
 		static float GeometryFunction_SchlickGGX(const Vector3& n, const Vector3& v, float roughness)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			const float a{ Square(roughness) };
+			const float k{ Square(a + 1) / 8.f };
+			const float normalDotView{std::max( Vector3::Dot(n, v),0.f) };
+			const float result{ normalDotView / (normalDotView * (1.f - k) + k) };
+
+			return result;
 		}
 
 		/**
@@ -87,9 +94,7 @@ namespace dae
 		 */
 		static float GeometryFunction_Smith(const Vector3& n, const Vector3& v, const Vector3& l, float roughness)
 		{
-			//todo: W3
-			//throw std::runtime_error("Not Implemented Yet");
-			return {};
+			return GeometryFunction_SchlickGGX(n, v, roughness) * GeometryFunction_SchlickGGX(n, l, roughness);
 		}
 
 	}
