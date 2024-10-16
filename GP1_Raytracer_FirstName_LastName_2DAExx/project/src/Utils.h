@@ -11,13 +11,13 @@ namespace dae
 		//SPHERE HIT-TESTS
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			Vector3 rayToSphere = ray.origin - sphere.origin;
+			Vector3 rayToSphere{ ray.origin - sphere.origin };
 
 			// all part of Qaudratic equation
-			const float RayDirectionDot = Vector3::Dot(ray.direction, ray.direction); //A
-			const float rayToSphereDotDirection = Vector3::Dot(2 * ray.direction, rayToSphere); //B
-			const float rayTosphereDot = Vector3::Dot(rayToSphere, rayToSphere) - Square(sphere.radius); //C
-			const float discriminant = Square(rayToSphereDotDirection) - 4 * RayDirectionDot * rayTosphereDot; //B^2 - 4AC
+			const float RayDirectionDot{ Vector3::Dot(ray.direction, ray.direction) }; //A
+			const float rayToSphereDotDirection{ Vector3::Dot(2 * ray.direction, rayToSphere) }; //B
+			const float rayTosphereDot{ Vector3::Dot(rayToSphere, rayToSphere) - Square(sphere.radius) }; //C
+			const float discriminant{ Square(rayToSphereDotDirection) - 4 * RayDirectionDot * rayTosphereDot }; //B^2 - 4AC
 
 			if(discriminant < 0)
 			{
@@ -25,19 +25,19 @@ namespace dae
 				return false;
 			}
 
-			const float sqrtDiscriminant = sqrt(discriminant);
+			const float sqrtDiscriminant{ sqrt(discriminant) };
 
-			const float t1 = (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot);
-			const float t2 = (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot);
+			const float t1{ (-rayToSphereDotDirection + sqrtDiscriminant) / (2.f * RayDirectionDot) };
+			const float t2{ (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot) };
 
 			float t{};
 			
-			////if t1 is bigger than 0 take t1, if not take infinity, same for t2, than take the smallest one of the 2
+			//if t1 is bigger than 0 take t1, if not take ray.max + 1, same for t2, than take the smallest one of the 2
 			t = fmin(t1 > ray.min ? t1 : ray.max + 1, t2 > ray.min ? t2 : ray.max + 1);
 
 
-			if (t >= ray.max + 1) {
-				return false; // Both are negative, sphere is behind the ray
+			if (t > ray.max || t < ray.min) {
+				return false;
 			}
 
 			if(!ignoreHitRecord && t < hitRecord.t)
@@ -61,12 +61,12 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			const Vector3 rayToPlane =  plane.origin - ray.origin ;
+			const Vector3 rayToPlane{ plane.origin - ray.origin };
 
-			const float originToPlaneDistance = Vector3::Dot(rayToPlane, plane.normal);
-			const float rayDirectionDotNormal = Vector3::Dot(plane.normal, ray.direction);
+			const float originToPlaneDistance{ Vector3::Dot(rayToPlane, plane.normal) };
+			const float rayDirectionDotNormal{ Vector3::Dot(plane.normal, ray.direction) };
 
-			const float t = originToPlaneDistance / rayDirectionDotNormal;
+			const float t{ originToPlaneDistance / rayDirectionDotNormal };
 
 			if (t < ray.min || t > ray.max)
 				return false;
@@ -93,9 +93,67 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			throw std::runtime_error("Not Implemented Yet");
-			return false;
+			const Vector3 a_Vector{ triangle.v1 - triangle.v0 };
+			const Vector3 b_Vector{ triangle.v2 - triangle.v0 };
+
+			const Vector3 normal{ Vector3::Cross(a_Vector,b_Vector).Normalized() };
+
+			if(Vector3::Dot(normal,ray.direction) == 0.f)
+			{
+				return false;
+			}
+
+			const Vector3 orginToRay{ triangle.v0 - ray.origin};
+
+			const float originToPlaneDistance{ Vector3::Dot(orginToRay, triangle.normal) };
+			const float rayDirectionDotNormal{ Vector3::Dot(triangle.normal, ray.direction) };
+
+			const float t{ originToPlaneDistance / rayDirectionDotNormal };
+
+			if (t < ray.min || t > ray.max)
+				return false;
+
+			const Vector3 point{ ray.origin + ray.direction * t };
+
+			for (int i = 0; i < 3; ++i)
+			{
+				Vector3 nextV;
+				Vector3 CurrentV;
+				switch (i)
+				{
+				case 0:
+					CurrentV = triangle.v0;
+					nextV = triangle.v1;
+					break;
+				case 1:
+					CurrentV = triangle.v1;
+					nextV = triangle.v2;
+					break;
+				case 2:
+					CurrentV = triangle.v2;
+					nextV = triangle.v0;
+					break;
+				}
+				const Vector3 e{nextV - CurrentV};
+				const Vector3 p{ point - CurrentV };
+
+				const Vector3 crossEP{ Vector3::Cross(e,p).Normalized() };
+				if(Vector3::Dot(crossEP, normal) < 0)
+				{
+					return false;
+				}
+			}
+
+			if (!ignoreHitRecord && t < hitRecord.t)
+			{
+				hitRecord.t = t;
+				hitRecord.origin = point;
+				hitRecord.normal = normal;
+				hitRecord.didHit = true;
+				hitRecord.materialIndex = triangle.materialIndex;
+			}
+
+			return true;
 		}
 
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)

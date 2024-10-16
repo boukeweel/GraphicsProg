@@ -8,7 +8,8 @@ set(SOURCES
     "src/Vector3.cpp"
     "src/Vector4.cpp"
     "src/Scene_W2.cpp"
- "src/Scene_W3.cpp")
+    "src/Scene_W3.cpp" 
+    "src/Scene_W4.cpp")
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})

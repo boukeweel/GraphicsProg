@@ -39,7 +39,13 @@ namespace dae {
 		{
 			GeometryUtils::HitTest_Plane(plane, ray, closestHit);
 		}
-		
+
+		//temp testing single triangle
+		for (Triangle triangle : m_Triangles)
+		{
+			GeometryUtils::HitTest_Triangle(triangle, ray, closestHit);
+		}
+
 		/*for (auto Traingle : m_TriangleMeshGeometries)
 		{
 			
