@@ -40,16 +40,16 @@ namespace dae {
 			GeometryUtils::HitTest_Plane(plane, ray, closestHit);
 		}
 
-		//temp testing single triangle
-		for (Triangle triangle : m_Triangles)
-		{
-			GeometryUtils::HitTest_Triangle(triangle, ray, closestHit);
-		}
+		////temp testing single triangle
+		//for (Triangle triangle : m_Triangles)
+		//{
+		//	GeometryUtils::HitTest_Triangle(triangle, ray, closestHit);
+		//}
 
-		/*for (auto Traingle : m_TriangleMeshGeometries)
+		for (TriangleMesh triangleMesh : m_TriangleMeshGeometries)
 		{
-			
-		}*/
+			GeometryUtils::HitTest_TriangleMesh(triangleMesh, ray, closestHit);
+		}
 	}
 
 	bool Scene::DoesHit(const Ray& ray) const
@@ -64,16 +64,17 @@ namespace dae {
 			if(GeometryUtils::HitTest_Plane(plane, ray))
 				return true;
 		}
-		for (Triangle triangle : m_Triangles)
+		/*for (Triangle triangle : m_Triangles)
 		{
 			if(GeometryUtils::HitTest_Triangle(triangle,ray))
 				return true;
-		}
-
-		/*for (auto Traingle : m_TriangleMeshGeometries)
-		{
-
 		}*/
+
+		for (TriangleMesh triangleMesh : m_TriangleMeshGeometries)
+		{
+			if(GeometryUtils::HitTest_TriangleMesh(triangleMesh, ray))
+				return true;
+		}
 
 		return false;
 	}

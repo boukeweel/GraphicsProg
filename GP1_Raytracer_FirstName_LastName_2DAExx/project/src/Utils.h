@@ -19,7 +19,7 @@ namespace dae
 			const float rayTosphereDot{ Vector3::Dot(rayToSphere, rayToSphere) - Square(sphere.radius) }; //C
 			const float discriminant{ Square(rayToSphereDotDirection) - 4 * RayDirectionDot * rayTosphereDot }; //B^2 - 4AC
 
-			if(discriminant < 0)
+			if (discriminant < 0)
 			{
 				//cant intersect because it will become imaginary number
 				return false;
@@ -31,10 +31,9 @@ namespace dae
 			const float t2{ (-rayToSphereDotDirection - sqrtDiscriminant) / (2.f * RayDirectionDot) };
 
 			float t{};
-			
-			//if t1 is bigger than 0 take t1, if not take ray.max + 1, same for t2, than take the smallest one of the 2
-			t = fmin(t1 > ray.min ? t1 : ray.max + 1, t2 > ray.min ? t2 : ray.max + 1);
 
+			//if t1 is bigger than ray.min take t1, if not take ray.max + 1, same for t2, than take the smallest one of the 2
+			t = fmin(t1 > ray.min ? t1 : ray.max + 1, t2 > ray.min ? t2 : ray.max + 1);
 
 			if (t > ray.max || t < ray.min) {
 				return false;
@@ -181,8 +180,26 @@ namespace dae
 #pragma region TriangeMesh HitTest
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			throw std::runtime_error("Not Implemented Yet");
+			int currentTriangle{0};
+			for (size_t i = 0; i < mesh.indices.size(); i += 3, currentTriangle++)
+			{
+				const Vector3& v0{ mesh.positions[mesh.indices[i]] };
+				const Vector3& v1{ mesh.positions[mesh.indices[i + 1]] };
+				const Vector3& v2{ mesh.positions[mesh.indices[i + 2]] };
+
+				Triangle triangle;
+				triangle.v0 = v0;
+				triangle.v1 = v1;
+				triangle.v2 = v2;
+				triangle.normal = mesh.normals[currentTriangle];
+				triangle.materialIndex = mesh.materialIndex;
+				triangle.cullMode = mesh.cullMode;
+
+
+				if (HitTest_Triangle(triangle, ray, hitRecord, ignoreHitRecord)) {
+					return true;
+				}
+			}
 			return false;
 		}
 
