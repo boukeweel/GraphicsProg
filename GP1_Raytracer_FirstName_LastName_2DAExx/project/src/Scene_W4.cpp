@@ -18,27 +18,56 @@ void dae::Scene_W4::Initialize()
 	AddPlane(Vector3{ 5.f,0.f,0.f }, Vector3{ -1.f,0.f,0.f }, matLambert_GrayBlue);  //right
 	AddPlane(Vector3{ -5.f,0.f,0.f }, Vector3{ 1.f,0.f,0.f }, matLambert_GrayBlue);  // left
 
+#pragma region cube
+	pMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
+	Utils::ParseOBJ("resources/simple_cube.obj",
+		pMesh->positions,
+		pMesh->normals,
+		pMesh->indices);
+
+	pMesh->Scale({ 0.7f, 0.7f, 0.7f });
+	pMesh->Translate({ 0.f,1.f,0.f });
+
+	pMesh->UpdateTransforms();
+#pragma endregion
+
+#pragma region TriangleMesh
 	//triangle_Mesh
-	const auto triangleMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
-	triangleMesh->positions = { {-.75f,-1.f,0.f},{-.75f,1.f,0.f},{.75f,1.f,1.f},{.75f,-1.f,0.f} };
-	triangleMesh->indices = {
-		0,1,2,//triangle 1
-		0,2,3 //triangle 2
-	};
+	//pMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
+	//pMesh->positions = { {-.75f,-1.f,0.f},{-.75f,1.f,0.f},{.75f,1.f,1.f},{.75f,-1.f,0.f} };
+	//pMesh->indices = {
+	//	0,1,2,//triangle 1
+	//	0,2,3 //triangle 2
+	//};
 
-	triangleMesh->CalculateNormals();
-	triangleMesh->UpdateTransforms();
+	//pMesh->CalculateNormals();
 
+	//pMesh->Translate({ 0.f, 1.5f, 0.f });
+	//pMesh->RotateY(45.f);
 
+	//pMesh->UpdateTransforms();
+#pragma endregion
+
+#pragma region Triangle
 	////triangle
 	/*auto triangle = Triangle{ {-.75f,.5f,0.f},{-.75f,2.f,0.f},{.75f,.5f,0.f} };
 	triangle.cullMode = TriangleCullMode::NoCulling;
 	triangle.materialIndex = matLambert_White;
 
 	m_Triangles.emplace_back(triangle);*/
+#pragma endregion
 
 	//lights
 	AddPointLight(Vector3{ 0.f,5.f,5.f }, 50.f, ColorRGB{ 1.f,.61f,.45f }); //BackLight
 	AddPointLight(Vector3{ -2.5f,5.f,-5.f }, 70.f, ColorRGB{ 1.f,.8f,.45f }); //Front light
 	AddPointLight(Vector3{ 2.5f,2.5f,-5.f }, 50.f, ColorRGB{ .34f,.47f,.68f }); //fill Light
+}
+
+
+void dae::Scene_W4::Update(dae::Timer* pTimer)
+{
+	Scene::Update(pTimer);
+
+	pMesh->RotateY(PI_DIV_2 * pTimer->GetTotal());
+	pMesh->UpdateTransforms();
 }

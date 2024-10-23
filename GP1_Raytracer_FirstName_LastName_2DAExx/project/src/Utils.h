@@ -130,10 +130,10 @@ namespace dae
 
 			const Vector3 point{ ray.origin + ray.direction * t };
 
+			Vector3 nextV;
+			Vector3 CurrentV;
 			for (int i = 0; i < 3; ++i)
 			{
-				Vector3 nextV;
-				Vector3 CurrentV;
 				switch (i)
 				{
 				case 0:
@@ -183,22 +183,18 @@ namespace dae
 			int currentTriangle{0};
 			for (size_t i = 0; i < mesh.indices.size(); i += 3, currentTriangle++)
 			{
-				const Vector3& v0{ mesh.positions[mesh.indices[i]] };
-				const Vector3& v1{ mesh.positions[mesh.indices[i + 1]] };
-				const Vector3& v2{ mesh.positions[mesh.indices[i + 2]] };
-
+				//create a triangle
 				Triangle triangle;
-				triangle.v0 = v0;
-				triangle.v1 = v1;
-				triangle.v2 = v2;
-				triangle.normal = mesh.normals[currentTriangle];
+				triangle.v0 = mesh.transformedPositions[mesh.indices[i]];
+				triangle.v1 = mesh.transformedPositions[mesh.indices[i + 1]];
+				triangle.v2 = mesh.transformedPositions[mesh.indices[i + 2]];
+				triangle.normal = mesh.transformedNormals[currentTriangle];
 				triangle.materialIndex = mesh.materialIndex;
 				triangle.cullMode = mesh.cullMode;
 
-
-				if (HitTest_Triangle(triangle, ray, hitRecord, ignoreHitRecord)) {
+				//use the HitTest_Traingle cuz I am lazy
+				if (HitTest_Triangle(triangle, ray, hitRecord, ignoreHitRecord))
 					return true;
-				}
 			}
 			return false;
 		}

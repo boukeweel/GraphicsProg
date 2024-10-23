@@ -130,9 +130,9 @@ namespace dae {
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
 		Matrix result{};
-		result.data[0] = { cosf(yaw),0,sinf(yaw),0 };
+		result.data[0] = { cosf(yaw),0,-sinf(yaw),0 };
 		result.data[1] = { 0, 1, 0, 0 };
-		result.data[2] = { -sinf(yaw), 0, cosf(yaw), 0 };
+		result.data[2] = { sinf(yaw), 0, cosf(yaw), 0 };
 		result.data[3] = { 0,0, 0, 1 };
 		return result;
 	}

@@ -147,19 +147,22 @@ namespace dae
 			//Calculate Final Transform 
 			const Matrix finalTransform{ scaleTransform * rotationTransform * translationTransform };
 
+			transformedPositions.reserve(positions.size());
+			transformedNormals.reserve(normals.size());
+
 			transformedPositions.clear();
 			transformedNormals.clear();
 
 			//Transform Positions (positions > transformedPositions)
 			for(const Vector3& position : positions)
 			{
-				transformedPositions.push_back(finalTransform.TransformPoint(position));
+				transformedPositions.emplace_back(finalTransform.TransformPoint(position));
 			}
 
 			//Transform Normals (normals > transformedNormals)
 			for (const Vector3& normal : normals)
 			{
-				transformedNormals.push_back(finalTransform.TransformPoint(normal).Normalized());
+				transformedNormals.emplace_back(finalTransform.TransformVector(normal));
 			}
 		}
 	};
