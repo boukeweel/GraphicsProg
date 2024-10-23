@@ -92,11 +92,7 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			const Vector3 a_Vector{ triangle.v1 - triangle.v0 };
-			const Vector3 b_Vector{ triangle.v2 - triangle.v0 };
-
-			const Vector3 normal{ Vector3::Cross(a_Vector,b_Vector).Normalized() };
-			const float normalDotDirection{ Vector3::Dot(normal,ray.direction) };
+			const float normalDotDirection{ Vector3::Dot(triangle.normal,ray.direction) };
 
 			if(!ignoreHitRecord)
 			{
@@ -153,7 +149,7 @@ namespace dae
 				const Vector3 p{ point - CurrentV };
 
 				const Vector3 crossEP{ Vector3::Cross(e,p).Normalized() };
-				if(Vector3::Dot(crossEP, normal) < 0)
+				if(Vector3::Dot(crossEP, triangle.normal) < 0)
 				{
 					return false;
 				}
@@ -163,7 +159,7 @@ namespace dae
 			{
 				hitRecord.t = t;
 				hitRecord.origin = point;
-				hitRecord.normal = normal;
+				hitRecord.normal = triangle.normal;
 				hitRecord.didHit = true;
 				hitRecord.materialIndex = triangle.materialIndex;
 			}
