@@ -113,16 +113,19 @@ void dae::Scene_W4_ReferenceScene::Initialize()
 	m_pMeshes[0] = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
 	m_pMeshes[0]->AppendTriangle(baseTriangle, true);
 	m_pMeshes[0]->Translate({ -1.75f,4.5f,0.f });
+	m_pMeshes[0]->UpdateAABB();
 	m_pMeshes[0]->UpdateTransforms();
 
 	m_pMeshes[1] = AddTriangleMesh(TriangleCullMode::FrontFaceCulling, matLambert_White);
 	m_pMeshes[1]->AppendTriangle(baseTriangle, true);
 	m_pMeshes[1]->Translate({ 0.f,4.5f,0.f });
+	m_pMeshes[1]->UpdateAABB();
 	m_pMeshes[1]->UpdateTransforms();
 
 	m_pMeshes[2] = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
 	m_pMeshes[2]->AppendTriangle(baseTriangle, true);
 	m_pMeshes[2]->Translate({ 1.75f,4.5f,0.f });
+	m_pMeshes[2]->UpdateAABB();
 	m_pMeshes[2]->UpdateTransforms();
 
 	//lights
@@ -169,6 +172,7 @@ void dae::Scene_W4_Bunny::Initialize()
 	//pMesh->Translate({ 0.f,1.f,0.f });
 	pMesh->RotateY(PI);
 
+	pMesh->UpdateAABB();
 	pMesh->UpdateTransforms();
 
 	//lights
