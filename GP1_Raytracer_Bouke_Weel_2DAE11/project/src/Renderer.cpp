@@ -101,7 +101,7 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, f
 				Ray shadowRay(hitPointOffset, rayToLight.Normalized(), 0.001f, distanceToLight - 0.001f);
 				if (pScene->DoesHit(shadowRay))
 				{
-					//not sure why it works but it works so super cool
+					//not sure why it works, but it works so super cool
 					continue;
 				}
 

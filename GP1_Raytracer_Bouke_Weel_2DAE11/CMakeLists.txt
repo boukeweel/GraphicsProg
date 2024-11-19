@@ -7,9 +7,19 @@ project(GP1_Raytracer)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+
 add_subdirectory(project)
 
-option(BUILD_TESTS "Build unit tests" ON)
+option(USE_REFERENCE_SCENE "Use the Reference Scene" ON)  
+
+if(USE_REFERENCE_SCENE)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE RefrenceScene)
+else()
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BunnyScene)
+endif()
+
+option(BUILD_TESTS "Build unit tests" OFF)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(project/tests)

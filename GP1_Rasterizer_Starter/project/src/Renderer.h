@@ -35,6 +35,8 @@ namespace dae
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
 	private:
+		void SceneWhiteTriangle();
+
 		SDL_Window* m_pWindow{};
 
 		SDL_Surface* m_pFrontBuffer{ nullptr };
@@ -42,6 +44,8 @@ namespace dae
 		uint32_t* m_pBackBufferPixels{};
 
 		//float* m_pDepthBufferPixels{};
+
+		std::vector<Mesh> m_Meshes;
 
 		Camera m_Camera{};
 

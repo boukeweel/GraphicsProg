@@ -17,6 +17,8 @@
 #include "Scene_W3.h"
 #include "Scene_W4.h"
 
+
+
 using namespace dae;
 
 void ShutDown(SDL_Window* pWindow)
@@ -54,8 +56,13 @@ int main(int argc, char* args[])
 	//const auto pScene = new Scene_W2();
 	//const auto pScene = new Scene_W3();
 	//const auto pScene = new Scene_W4();
-	//const auto pScene = new Scene_W4_ReferenceScene();
+
+#ifdef BunnyScene
 	const auto pScene = new Scene_W4_Bunny();
+#elif defined(RefrenceScene)
+	const auto pScene = new Scene_W4_ReferenceScene();
+#endif
+
 	pScene->Initialize();
 
 	//Start loop

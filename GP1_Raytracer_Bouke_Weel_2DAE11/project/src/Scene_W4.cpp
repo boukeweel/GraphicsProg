@@ -147,6 +147,7 @@ void dae::Scene_W4_ReferenceScene::Update(dae::Timer* pTimer)
 }
 #pragma endregion
 
+#pragma region BunnyScene
 void dae::Scene_W4_Bunny::Initialize()
 {
 	m_Camera.origin = { 0.f,1.f,-5.f };
@@ -180,3 +181,16 @@ void dae::Scene_W4_Bunny::Initialize()
 	AddPointLight(Vector3{ -2.5f,5.f,-5.f }, 70.f, ColorRGB{ 1.f,.8f,.45f }); //Front light
 	AddPointLight(Vector3{ 2.5f,2.5f,-5.f }, 50.f, ColorRGB{ .34f,.47f,.68f }); //fill Light
 }
+
+void dae::Scene_W4_Bunny::Update(dae::Timer* pTimer)
+{
+	Scene::Update(pTimer);
+
+	const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
+
+	pMesh->RotateY(yawAngle);
+	pMesh->UpdateTransforms();
+	
+}
+
+#pragma endregion
