@@ -35,7 +35,7 @@ namespace dae
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
 	private:
-		void SceneWhiteTriangle();
+		void SceneWeek1();
 
 		SDL_Window* m_pWindow{};
 

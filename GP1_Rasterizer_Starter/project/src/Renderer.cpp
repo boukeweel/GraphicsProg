@@ -27,7 +27,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	//m_pDepthBufferPixels = new float[m_Width * m_Height];
 
 	//Initialize Camera
-	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+	m_Camera.Initialize(60.f, { .0f,.0f,-25.f });
 }
 
 Renderer::~Renderer()
@@ -49,7 +49,7 @@ void Renderer::Render()
 	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 0, 0, 0));
 
 
-	SceneWhiteTriangle();
+	SceneWeek1();
 
 
 	//@END
@@ -90,12 +90,12 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 	}
 }
 
-void Renderer::SceneWhiteTriangle()
+void Renderer::SceneWeek1()
 {
 	std::vector<Vertex> vertices_ndc = {
-		{{ 0.f,  .5f, 1.f }},
-		{{.5f, -.5f, 1.f }},
-		{{-.5f, -.5f, 1.f }}
+		{{ 0.f,  4.f, 2.f },{1,0,0}},
+		{{3.f, -2.f, 2.f },{0,1,0}},
+		{{-3.f, -2.f, 2.f },{0,0,1}}
 	};
 
 	std::vector<Vertex> vertices_Screen;
@@ -112,28 +112,27 @@ void Renderer::SceneWhiteTriangle()
 			// Calculate the pixel center point in screen space
 			Vector2 P(px + 0.5f, py + 0.5f);
 
-			// Edge vectors
-			Vector2 edge0 = V1 - V0;
-			Vector2 edge1 = V2 - V1;
-			Vector2 edge2 = V0 - V2;
+			// Calculate sub-areas for barycentric coordinates
+			float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
+			float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
+			float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
 
-			// Vectors from vertices to the pixel center
-			Vector2 vector0 = P - V0;
-			Vector2 vector1 = P - V1;
-			Vector2 vector2 = P - V2;
-
-			// Calculate signed areas (cross products)
-			float cross0 = Vector2::Cross(edge0, vector0);
-			float cross1 = Vector2::Cross(edge1, vector1);
-			float cross2 = Vector2::Cross(edge2, vector2);
-
-			// Check if all cross products have the same sign
-			bool inside = (cross0 >= 0 && cross1 >= 0 && cross2 >= 0) || (cross0 <= 0 && cross1 <= 0 && cross2 <= 0);
-
-			if (inside)
+			if (W0 >= 0 && W1 >= 0 && W2 >= 0)
 			{
-				// Inside the triangle, color the pixel white
-				ColorRGB color{ 1.0f, 1.0f, 1.0f };
+				float totalArea = W0 + W1 + W2;
+
+				float colorr = W0 / totalArea;
+				float colorg = W1 / totalArea;
+				float colorb = W2 / totalArea;
+
+				ColorRGB vertexColor0 = vertices_Screen[0].color;
+				ColorRGB vertexColor1 = vertices_Screen[1].color;
+				ColorRGB vertexColor2 = vertices_Screen[2].color;
+
+				ColorRGB color{
+				colorr * vertexColor0.r + colorg * vertexColor1.r + colorb * vertexColor2.r,
+				colorr* vertexColor0.g + colorg * vertexColor1.g + colorb * vertexColor2.g,
+				colorr* vertexColor0.b + colorg * vertexColor1.b + colorb * vertexColor2.b };
 
 				// Map color to buffer
 				m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
