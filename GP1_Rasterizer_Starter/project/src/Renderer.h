@@ -43,7 +43,7 @@ namespace dae
 		SDL_Surface* m_pBackBuffer{ nullptr };
 		uint32_t* m_pBackBufferPixels{};
 
-		//float* m_pDepthBufferPixels{};
+		float* m_pDepthBufferPixels{};
 
 		std::vector<Mesh> m_Meshes;
 

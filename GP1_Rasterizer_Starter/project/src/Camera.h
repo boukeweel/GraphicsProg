@@ -31,7 +31,7 @@ namespace dae
 		float totalYaw{};
 
 		const float MoveSpeedKey{ 5.f };
-		const float MoveSpeedMouse{ 0.01f };
+		const float MoveSpeedMouse{ 0.5f };
 		const float RotatedSpeed{ 0.01f };
 
 		Matrix invViewMatrix{};
@@ -47,8 +47,8 @@ namespace dae
 
 		void CalculateViewMatrix()
 		{
-			viewMatrix = Matrix::CreateLookAtLH(origin, forward, up);
-			invViewMatrix = Matrix::Inverse(viewMatrix);
+			invViewMatrix = Matrix::CreateLookAtLH(origin, forward, up);
+			viewMatrix = Matrix::Inverse(invViewMatrix);
 		}
 
 		void CalculateProjectionMatrix()
