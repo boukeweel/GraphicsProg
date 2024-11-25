@@ -16,6 +16,8 @@ namespace dae
 	class Timer;
 	class Scene;
 
+	
+
 	class Renderer final
 	{
 	public:
@@ -36,6 +38,7 @@ namespace dae
 
 	private:
 		void SceneWeek1();
+		void SceneWeek2();
 
 		SDL_Window* m_pWindow{};
 
