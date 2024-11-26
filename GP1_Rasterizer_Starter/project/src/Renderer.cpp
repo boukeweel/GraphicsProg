@@ -28,11 +28,42 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	//Initialize Camera
 	m_Camera.Initialize(60.f, { .0f,.0f,-25.f });
+
+	InitializeWeek2();
+}
+
+void dae::Renderer::InitializeWeek2()
+{
+	m_Meshes.emplace_back(
+		Mesh{
+			{
+				{{-3.0f,  3.0f, -2.0f},{},{0.f,0.f}}, // V0
+				{{ 0.0f,  3.0f, -2.0f},{},{.5f,0.f}}, // V1
+				{{ 3.0f,  3.0f, -2.0f},{},{1.f,0.f}}, // V2
+				{{-3.0f,  0.0f, -2.0f},{},{0.f,.5f}}, // V3
+				{{ 0.0f,  0.0f, -2.0f},{},{.5f,.5f}}, // V4
+				{{ 3.0f,  0.0f, -2.0f},{},{1.f,.5f}}, // V5
+				{{-3.0f, -3.0f, -2.0f},{},{0.f,1.f}}, // V6
+				{{ 0.0f, -3.0f, -2.0f},{},{.5f,1.f}}, // V7
+				{{ 3.0f, -3.0f, -2.0f},{},{1.f,1.f}}, // V8
+			},
+			{
+				3,0,4,1,5,2,
+				2,6,
+				6,3,7,4,8,5
+			},
+			PrimitiveTopology::TriangleStrip,
+		}
+	);
+
+	m_pTexture = Texture::LoadFromFile("resources/uv_grid_2.png");
 }
 
 Renderer::~Renderer()
 {
-	delete[] m_pDepthBufferPixels;	
+	delete[] m_pDepthBufferPixels;
+	delete m_pTexture;
+	m_pTexture = nullptr;
 }
 
 
@@ -89,6 +120,8 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 		vertices_out.emplace_back(transformedVertex);
 	}
 }
+
+
 
 void Renderer::SceneWeek1()
 {
@@ -180,119 +213,121 @@ void Renderer::SceneWeek1()
 
 void dae::Renderer::SceneWeek2()
 {
-	std::vector<Mesh> meshes_world{
-		Mesh{
-			{
-				{{-3.0f,  3.0f, -2.0f}}, // V0
-				{{ 0.0f,  3.0f, -2.0f}}, // V1
-				{{ 3.0f,  3.0f, -2.0f}}, // V2
-				{{-3.0f,  0.0f, -2.0f}}, // V3
-				{{ 0.0f,  0.0f, -2.0f}}, // V4
-				{{ 3.0f,  0.0f, -2.0f}}, // V5
-				{{-3.0f, -3.0f, -2.0f}}, // V6
-				{{ 0.0f, -3.0f, -2.0f}}, // V7
-				{{ 3.0f, -3.0f, -2.0f}}, // V8
-			},
-			{
-				3,0,4,1,5,2,
-				2,6,
-				6,3,7,4,8,5
-			},
-			PrimitiveTopology::TriangleStrip
+	for (Mesh& mesh : m_Meshes)
+	{
+		VertexTransformationFunction(mesh.vertices, mesh.vertices_out);
+
+		if(mesh.primitiveTopology == PrimitiveTopology::TriangleStrip)
+		{
+			TriangleSrip(mesh);
+		}
+		else
+		{
+			TriangleList(mesh);
+		}
+	}
+}
+
+void Renderer::TriangleSrip(const Mesh& mesh)
+{
+	for (size_t i = 0; i < mesh.indices.size() - 2; i++)
+	{
+		size_t v0;
+		size_t v1;
+		size_t v2;
+		if (i % 2 == 0)
+		{
+			v0 = mesh.indices[i];
+			v1 = mesh.indices[i + 1];
+			v2 = mesh.indices[i + 2];
+		}
+		else
+		{
+			v0 = mesh.indices[i];
+			v1 = mesh.indices[i + 2];
+			v2 = mesh.indices[i + 1];
+		}
+
+		Rasteriz(mesh, v0, v1, v2);
+	}
+}
+
+void Renderer::TriangleList(const Mesh& mesh)
+{
+	for (size_t i = 0; i < mesh.indices.size() - 2; i += 3)
+	{
+		const size_t v0 = mesh.indices[i];
+		const size_t v1 = mesh.indices[i + 1];
+		const size_t v2 = mesh.indices[i + 2];
+		Rasteriz(mesh, v0, v1, v2);
+	}
+}
+
+void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2)
+{
+	const Vector2 V0 = { mesh.vertices_out[v0].position.x, mesh.vertices_out[v0].position.y };
+	const Vector2 V1 = { mesh.vertices_out[v1].position.x, mesh.vertices_out[v1].position.y };
+	const Vector2 V2 = { mesh.vertices_out[v2].position.x, mesh.vertices_out[v2].position.y };
+
+	const float z0 = mesh.vertices_out[v0].position.z;
+	const float z1 = mesh.vertices_out[v1].position.z;
+	const float z2 = mesh.vertices_out[v2].position.z;
+
+	const BoundaryBox boundaryBox{
+		{
+			std::clamp(std::min({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
+			std::clamp(std::min({V0.y, V1.y, V2.y}), 0.0f, static_cast<float>(m_Height - 1))
+		},
+		{
+			std::clamp(std::max({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
+			std::clamp(std::max({V0.y, V1.y, V2.y}), 0.0f, static_cast<float>(m_Height - 1))
 		}
 	};
 
-	for (Mesh mesh : meshes_world)
+	for (int py = boundaryBox.Smallest.y; py <= boundaryBox.Biggest.y; ++py)
 	{
-		VertexTransformationFunction(mesh.vertices, mesh.vertices_out);
-		
-		for (size_t i = 0; i < mesh.indices.size() - 2; i ++)
+		for (int px = boundaryBox.Smallest.x; px <= boundaryBox.Biggest.x; ++px)
 		{
-			size_t v0;
-			size_t v1;
-			size_t v2;
-			if(i % 2 == 0)
+			// Calculate the pixel center point in screen space
+			const Vector2 P(px + 0.5f, py + 0.5f);
+
+			// Calculate sub-areas for barycentric coordinates
+			const float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
+			const float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
+			const float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
+
+			if (W0 >= 0 && W1 >= 0 && W2 >= 0)
 			{
-				v0 = mesh.indices[i];
-				v1 = mesh.indices[i + 1];
-				v2 = mesh.indices[i + 2];
-			}
-			else
-			{
-				v0 = mesh.indices[i];
-				v1 = mesh.indices[i + 2];
-				v2 = mesh.indices[i + 1];
-			}
+				const float totalArea = W0 + W1 + W2;
 
-			const Vector2 V0 = { mesh.vertices_out[v0].position.x, mesh.vertices_out[v0].position.y };
-			const Vector2 V1 = { mesh.vertices_out[v1].position.x, mesh.vertices_out[v1].position.y };
-			const Vector2 V2 = { mesh.vertices_out[v2].position.x, mesh.vertices_out[v2].position.y };
+				//get the depth of triangle
+				const float depth = (W0 * z0 + W1 * z1 + W2 * z2) / totalArea;
+				//get the index where in screen this pixel is
+				const int bufferIndex = px + py * m_Width;
 
-			const float z0 = mesh.vertices_out[v0].position.z;
-			const float z1 = mesh.vertices_out[v1].position.z;
-			const float z2 = mesh.vertices_out[v2].position.z;
-
-			const BoundaryBox boundaryBox{
+				if (depth < m_pDepthBufferPixels[bufferIndex])
 				{
-					std::clamp(std::min({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
-					std::clamp(std::min({V0.y, V1.y, V2.y}), 0.0f, static_cast<float>(m_Height - 1))
-				},
-				{
-					std::clamp(std::max({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
-					std::clamp(std::max({V0.y, V1.y, V2.y}), 0.0f, static_cast<float>(m_Height - 1))
-				}
-			};
+					m_pDepthBufferPixels[bufferIndex] = depth;
 
-			for (int py = boundaryBox.Smallest.y; py <= boundaryBox.Biggest.y; ++py)
-			{
-				for (int px = boundaryBox.Smallest.x; px <= boundaryBox.Biggest.x; ++px)
-				{
-					// Calculate the pixel center point in screen space
-					const Vector2 P(px + 0.5f, py + 0.5f);
+					const Vector2 uv0 = mesh.vertices_out[v0].uv;
+					const Vector2 uv1 = mesh.vertices_out[v1].uv;
+					const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-					// Calculate sub-areas for barycentric coordinates
-					const float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
-					const float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
-					const float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
+					const Vector2 interpolatedUV = (W0 * uv0 + W1 * uv1 + W2 * uv2) / totalArea;
 
-					if (W0 >= 0 && W1 >= 0 && W2 >= 0)
-					{
-						const float totalArea = W0 + W1 + W2;
+					const ColorRGB color{m_pTexture->Sample(interpolatedUV) };
 
-						//get the depth of triangle
-						const float depth = (W0 * z0 + W1 * z1 + W2 * z2) / totalArea;
-						//get the index where in screen this pixel is
-						const int bufferIndex = px + py * m_Width;
-
-						if (depth < m_pDepthBufferPixels[bufferIndex])
-						{
-							m_pDepthBufferPixels[bufferIndex] = depth;
-
-							const float colorr = W0 / totalArea;
-							const float colorg = W1 / totalArea;
-							const float colorb = W2 / totalArea;
-
-							const ColorRGB vertexColor0 = mesh.vertices_out[v0].color;
-							const ColorRGB vertexColor1 = mesh.vertices_out[v1].color;
-							const ColorRGB vertexColor2 = mesh.vertices_out[v2].color;
-
-							const ColorRGB color{
-							colorr * vertexColor0.r + colorg * vertexColor1.r + colorb * vertexColor2.r,
-							colorr * vertexColor0.g + colorg * vertexColor1.g + colorb * vertexColor2.g,
-							colorr * vertexColor0.b + colorg * vertexColor1.b + colorb * vertexColor2.b };
-
-							// Map color to buffer
-							m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-								static_cast<uint8_t>(color.r * 255),
-								static_cast<uint8_t>(color.g * 255),
-								static_cast<uint8_t>(color.b * 255));
-						}
-					}
+					// Map color to buffer
+					m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+						static_cast<uint8_t>(color.r * 255),
+						static_cast<uint8_t>(color.g * 255),
+						static_cast<uint8_t>(color.b * 255));
 				}
 			}
 		}
 	}
 }
+
 
 bool Renderer::SaveBufferToImage() const
 {

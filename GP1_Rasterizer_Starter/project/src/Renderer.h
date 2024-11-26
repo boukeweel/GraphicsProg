@@ -37,8 +37,14 @@ namespace dae
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 
 	private:
+		void InitializeWeek2();
+
 		void SceneWeek1();
 		void SceneWeek2();
+
+		void TriangleSrip(const Mesh& mesh);
+		void TriangleList(const Mesh& mesh);
+		void Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2);
 
 		SDL_Window* m_pWindow{};
 
@@ -49,6 +55,7 @@ namespace dae
 		float* m_pDepthBufferPixels{};
 
 		std::vector<Mesh> m_Meshes;
+		Texture* m_pTexture;
 
 		Camera m_Camera{};
 

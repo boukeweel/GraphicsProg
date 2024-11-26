@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <SDL_surface.h>
 #include <string>
 #include "ColorRGB.h"

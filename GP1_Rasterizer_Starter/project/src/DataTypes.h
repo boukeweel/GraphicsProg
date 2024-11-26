@@ -8,7 +8,7 @@ namespace dae
 	{
 		Vector3 position{};
 		ColorRGB color{colors::White};
-		//Vector2 uv{}; //W2
+		Vector2 uv{}; //W2
 		//Vector3 normal{}; //W4
 		//Vector3 tangent{}; //W4
 		//Vector3 viewDirection{}; //W4
@@ -36,6 +36,7 @@ namespace dae
 		std::vector<uint32_t> indices{};
 		PrimitiveTopology primitiveTopology{ PrimitiveTopology::TriangleStrip };
 
+		//why vertex_out and not just vertex???
 		//std::vector<Vertex_Out> vertices_out{};
 		std::vector<Vertex> vertices_out{};
 		Matrix worldMatrix{};
