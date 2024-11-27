@@ -31,7 +31,7 @@ namespace dae
 		float totalYaw{};
 
 		const float MoveSpeedKey{ 5.f };
-		const float MoveSpeedMouse{ 0.5f };
+		const float MoveSpeedMouse{ 0.05f };
 		const float RotatedSpeed{ 0.01f };
 
 		Matrix invViewMatrix{};
@@ -80,6 +80,12 @@ namespace dae
 
 			if (pKeyboardState[SDL_SCANCODE_D])
 				InputVector.x += 1;
+
+			if (pKeyboardState[SDL_SCANCODE_Q])
+				InputVector.y -= 1;
+
+			if (pKeyboardState[SDL_SCANCODE_E])
+				InputVector.y += 1;
 
 			//Mouse Input
 			int mouseX{}, mouseY{};

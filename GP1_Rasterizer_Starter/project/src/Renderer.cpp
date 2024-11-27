@@ -79,7 +79,7 @@ void Renderer::Render()
 	//fill the whole depth buffer with max values so it can become smaller
 	std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, std::numeric_limits<float>::max());
 	// Clear screen buffer
-	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 0, 0, 0));
+	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
 	//SceneWeek1();
 	SceneWeek2();
@@ -98,18 +98,18 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 	vertices_out.clear();
 	vertices_out.reserve(vertices_in.size());
 
+	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	const float FOV = 1.f / tan(m_Camera.fovAngle / 2);
+
 	for (const Vertex& vertex : vertices_in)
 	{
 		// Transform the vertex position using the view matrix
-		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position).Normalized() };
-
-		const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
-		const float FOV = 1.f / tan(m_Camera.fovAngle / 2);
+		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position).Normalized()};
 
 		Vector3 PojectedVertex{
 			(viewPosition.x / viewPosition.z) / (aspectRatio * FOV),
-			(viewPosition.y / viewPosition.z ) / FOV,
-			viewPosition.z
+			(viewPosition.y / viewPosition.z) / FOV,
+			vertex.position.z
 		};
 
 		Vertex transformedVertex = vertex;
@@ -121,11 +121,9 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 	}
 }
 
-
-
 void Renderer::SceneWeek1()
 {
-	const std::vector<Vertex> vertices_ndc = {
+	const std::vector<Vertex> vertices_world = {
 
 		//triangle 0
 		{{0.f,2.f,0.f},{1,0,0}},
@@ -139,7 +137,7 @@ void Renderer::SceneWeek1()
 	};
 
 	std::vector<Vertex> vertices_Screen;
-	VertexTransformationFunction(vertices_ndc, vertices_Screen);
+	VertexTransformationFunction(vertices_world, vertices_Screen);
 
 	for (size_t i = 0; i < vertices_Screen.size(); i += 3)
 	{
@@ -169,16 +167,19 @@ void Renderer::SceneWeek1()
 				const Vector2 P(px + 0.5f, py + 0.5f);
 
 				// Calculate sub-areas for barycentric coordinates
-				const float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
-				const float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
-				const float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
+				float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
+				float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
+				float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
 
 				if (W0 >= 0 && W1 >= 0 && W2 >= 0)
 				{
 					const float totalArea = W0 + W1 + W2;
+					W0 /= totalArea;
+					W1 /= totalArea;
+					W2 /= totalArea;
 
 					//get the depth of triangle
-					const float depth = (W0 * z0 + W1 * z1 + W2 * z2) / totalArea;
+					const float depth = 1 / ((1 / z0) * W0 + (1 / z1) * W1 + (1 / z2) / W2);
 					//get the index where in screen this pixel is
 					const int bufferIndex = px + py * m_Width;
 
@@ -186,9 +187,9 @@ void Renderer::SceneWeek1()
 					{
 						m_pDepthBufferPixels[bufferIndex] = depth;
 
-						const float colorr = W0 / totalArea;
-						const float colorg = W1 / totalArea;
-						const float colorb = W2 / totalArea;
+						const float colorr = W0;
+						const float colorg = W1;
+						const float colorb = W2;
 
 						const ColorRGB vertexColor0 = vertices_Screen[v0].color;
 						const ColorRGB vertexColor1 = vertices_Screen[v1].color;
@@ -211,7 +212,7 @@ void Renderer::SceneWeek1()
 	}
 }
 
-void dae::Renderer::SceneWeek2()
+void Renderer::SceneWeek2()
 {
 	for (Mesh& mesh : m_Meshes)
 	{
@@ -227,7 +228,6 @@ void dae::Renderer::SceneWeek2()
 		}
 	}
 }
-
 void Renderer::TriangleSrip(const Mesh& mesh)
 {
 	for (size_t i = 0; i < mesh.indices.size() - 2; i++)
@@ -251,7 +251,6 @@ void Renderer::TriangleSrip(const Mesh& mesh)
 		Rasteriz(mesh, v0, v1, v2);
 	}
 }
-
 void Renderer::TriangleList(const Mesh& mesh)
 {
 	for (size_t i = 0; i < mesh.indices.size() - 2; i += 3)
@@ -262,7 +261,6 @@ void Renderer::TriangleList(const Mesh& mesh)
 		Rasteriz(mesh, v0, v1, v2);
 	}
 }
-
 void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2)
 {
 	const Vector2 V0 = { mesh.vertices_out[v0].position.x, mesh.vertices_out[v0].position.y };
@@ -292,28 +290,37 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 			const Vector2 P(px + 0.5f, py + 0.5f);
 
 			// Calculate sub-areas for barycentric coordinates
-			const float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
-			const float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
-			const float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
+			float W0 = Vector2::Cross(V2 - V1, P - V1) / 2; // Opposite V0
+			float W1 = Vector2::Cross(V0 - V2, P - V2) / 2; // Opposite V1
+			float W2 = Vector2::Cross(V1 - V0, P - V0) / 2; // Opposite V2
 
 			if (W0 >= 0 && W1 >= 0 && W2 >= 0)
 			{
 				const float totalArea = W0 + W1 + W2;
+				const Vector3 weights
+				{
+					W0 / totalArea,
+					W1 / totalArea,
+					W2 / totalArea
+				};
 
 				//get the depth of triangle
-				const float depth = (W0 * z0 + W1 * z1 + W2 * z2) / totalArea;
+				const float zInterplation = 1 / ((1 / z0) * weights.x + (1 / z1) * weights.y + (1 / z2) / weights.z);
 				//get the index where in screen this pixel is
 				const int bufferIndex = px + py * m_Width;
 
-				if (depth < m_pDepthBufferPixels[bufferIndex])
+				if (zInterplation < m_pDepthBufferPixels[bufferIndex])
 				{
-					m_pDepthBufferPixels[bufferIndex] = depth;
+					m_pDepthBufferPixels[bufferIndex] = zInterplation;
 
 					const Vector2 uv0 = mesh.vertices_out[v0].uv;
 					const Vector2 uv1 = mesh.vertices_out[v1].uv;
 					const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-					const Vector2 interpolatedUV = (W0 * uv0 + W1 * uv1 + W2 * uv2) / totalArea;
+					const Vector2 interpolatedUV = 
+						( uv0 / z0 * weights.x
+						+ uv1 / z1 * weights.y
+						+ uv2 / z2 * weights.z) * zInterplation;
 
 					const ColorRGB color{m_pTexture->Sample(interpolatedUV) };
 

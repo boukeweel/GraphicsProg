@@ -41,7 +41,7 @@ namespace dae
 		int texHeight = m_pSurface->h;
 
 		int x = static_cast<int>(uv.x * (texWidth - 1));
-		int y = static_cast<int>((uv.y) * (texHeight - 1));
+		int y = static_cast<int>(uv.y * (texHeight - 1));
 
 		uint32_t pixelColor = m_pSurfacePixels[x + y * texWidth];
 

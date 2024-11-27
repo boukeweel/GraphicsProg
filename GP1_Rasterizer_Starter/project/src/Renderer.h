@@ -35,6 +35,7 @@ namespace dae
 		bool SaveBufferToImage() const;
 
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
+		//void VertexTransformationFunction(Mesh& mesh);
 
 	private:
 		void InitializeWeek2();
@@ -53,6 +54,8 @@ namespace dae
 		uint32_t* m_pBackBufferPixels{};
 
 		float* m_pDepthBufferPixels{};
+
+		Matrix m_WorldSpace{};
 
 		std::vector<Mesh> m_Meshes;
 		Texture* m_pTexture;
