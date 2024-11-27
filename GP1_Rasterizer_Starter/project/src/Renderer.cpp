@@ -27,7 +27,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_pDepthBufferPixels = new float[m_Width * m_Height];
 
 	//Initialize Camera
-	m_Camera.Initialize(60.f, { .0f,.0f,-25.f });
+	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
 
 	InitializeWeek2();
 }
@@ -93,28 +93,28 @@ void Renderer::Render()
 	
 }
 
+//todo make one that does same but than for the meshes
 void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
 {
 	vertices_out.clear();
 	vertices_out.reserve(vertices_in.size());
 
 	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
-	const float FOV = 1.f / tan(m_Camera.fovAngle / 2);
 
 	for (const Vertex& vertex : vertices_in)
 	{
 		// Transform the vertex position using the view matrix
-		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position).Normalized()};
+		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position)};
 
 		Vector3 PojectedVertex{
-			(viewPosition.x / viewPosition.z) / (aspectRatio * FOV),
-			(viewPosition.y / viewPosition.z) / FOV,
-			vertex.position.z
+			(viewPosition.x / viewPosition.z) / (aspectRatio * m_Camera.fov),
+			(viewPosition.y / viewPosition.z) / (aspectRatio * m_Camera.fov),
+			viewPosition.z
 		};
 
 		Vertex transformedVertex = vertex;
-		transformedVertex.position.x = (PojectedVertex.x + 1.0f) / 2.0f * m_Width;
-		transformedVertex.position.y = (1.0f - (PojectedVertex.y + 1.0f) / 2.0f) * m_Height;
+		transformedVertex.position.x = (PojectedVertex.x + 1.0f) / 2.0f * static_cast<float>(m_Width);
+		transformedVertex.position.y = (1.0f - PojectedVertex.y) / 2.0f * static_cast<float>(m_Width);
 		transformedVertex.position.z = PojectedVertex.z; // Keep Z for depth buffering
 
 		vertices_out.emplace_back(transformedVertex);
@@ -174,12 +174,18 @@ void Renderer::SceneWeek1()
 				if (W0 >= 0 && W1 >= 0 && W2 >= 0)
 				{
 					const float totalArea = W0 + W1 + W2;
-					W0 /= totalArea;
-					W1 /= totalArea;
-					W2 /= totalArea;
+					const Vector3 weights
+					{
+						W0 / totalArea,
+						W1 / totalArea,
+						W2 / totalArea
+					};
 
 					//get the depth of triangle
-					const float depth = 1 / ((1 / z0) * W0 + (1 / z1) * W1 + (1 / z2) / W2);
+					const float depth = 1.0f / (
+						weights.x / z0 +
+						weights.y / z1 +
+						weights.z / z2);
 					//get the index where in screen this pixel is
 					const int bufferIndex = px + py * m_Width;
 
@@ -187,9 +193,9 @@ void Renderer::SceneWeek1()
 					{
 						m_pDepthBufferPixels[bufferIndex] = depth;
 
-						const float colorr = W0;
-						const float colorg = W1;
-						const float colorb = W2;
+						const float colorr = weights.x;
+						const float colorg = weights.y;
+						const float colorb = weights.z;
 
 						const ColorRGB vertexColor0 = vertices_Screen[v0].color;
 						const ColorRGB vertexColor1 = vertices_Screen[v1].color;
@@ -305,7 +311,10 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 				};
 
 				//get the depth of triangle
-				const float zInterplation = 1 / ((1 / z0) * weights.x + (1 / z1) * weights.y + (1 / z2) / weights.z);
+				const float zInterplation = 1.0f / (
+					weights.x / z0 +
+					weights.y / z1 +
+					weights.z / z2);
 				//get the index where in screen this pixel is
 				const int bufferIndex = px + py * m_Width;
 
@@ -317,7 +326,7 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 					const Vector2 uv1 = mesh.vertices_out[v1].uv;
 					const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-					const Vector2 interpolatedUV = 
+					const Vector2 interpolatedUV =
 						( uv0 / z0 * weights.x
 						+ uv1 / z1 * weights.y
 						+ uv2 / z2 * weights.z) * zInterplation;

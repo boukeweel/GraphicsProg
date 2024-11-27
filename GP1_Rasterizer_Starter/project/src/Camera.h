@@ -37,6 +37,8 @@ namespace dae
 		Matrix invViewMatrix{};
 		Matrix viewMatrix{};
 
+		Matrix projectionMatrix;
+
 		void Initialize(float _fovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f})
 		{
 			fovAngle = _fovAngle;
@@ -48,7 +50,7 @@ namespace dae
 		void CalculateViewMatrix()
 		{
 			invViewMatrix = Matrix::CreateLookAtLH(origin, forward, up);
-			viewMatrix = Matrix::Inverse(invViewMatrix);
+			viewMatrix = invViewMatrix.Inverse();
 		}
 
 		void CalculateProjectionMatrix()
@@ -119,6 +121,8 @@ namespace dae
 			};
 
 			forward = pitchYawRotation.TransformVector(Vector3::UnitZ);
+			right = Vector3::Cross(Vector3::UnitY, forward).Normalized();
+			up = Vector3::Cross(forward, right).Normalized();
 
 			InputVector = pitchYawRotation.TransformVector(InputVector);
 
