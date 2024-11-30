@@ -35,13 +35,15 @@ namespace dae
 		bool SaveBufferToImage() const;
 
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
-		//void VertexTransformationFunction(Mesh& mesh);
+		void VertexTransformationFunction(Mesh& mesh) const;
 
 	private:
 		void InitializeWeek2();
+		void InitializeWeek3();
 
 		void SceneWeek1();
 		void SceneWeek2();
+		void SceneWeek3();
 
 		void TriangleSrip(const Mesh& mesh);
 		void TriangleList(const Mesh& mesh);

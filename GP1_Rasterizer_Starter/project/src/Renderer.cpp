@@ -26,14 +26,47 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	m_pDepthBufferPixels = new float[m_Width * m_Height];
 
-	//Initialize Camera
-	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+	
 
-	InitializeWeek2();
+	//InitializeWeek2();
+	InitializeWeek3();
 }
 
 void dae::Renderer::InitializeWeek2()
 {
+	//Initialize Camera
+	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+
+	m_Meshes.emplace_back(
+		Mesh{
+			{
+				{{-3.0f,  3.0f, -2.0f},{},{0.f,0.f}}, // V0
+				{{ 0.0f,  3.0f, -2.0f},{},{.5f,0.f}}, // V1
+				{{ 3.0f,  3.0f, -2.0f},{},{1.f,0.f}}, // V2
+				{{-3.0f,  0.0f, -2.0f},{},{0.f,.5f}}, // V3
+				{{ 0.0f,  0.0f, -2.0f},{},{.5f,.5f}}, // V4
+				{{ 3.0f,  0.0f, -2.0f},{},{1.f,.5f}}, // V5
+				{{-3.0f, -3.0f, -2.0f},{},{0.f,1.f}}, // V6
+				{{ 0.0f, -3.0f, -2.0f},{},{.5f,1.f}}, // V7
+				{{ 3.0f, -3.0f, -2.0f},{},{1.f,1.f}}, // V8
+			},
+			{
+				3,0,4,1,5,2,
+				2,6,
+				6,3,7,4,8,5
+			},
+			PrimitiveTopology::TriangleStrip,
+		}
+	);
+
+	m_pTexture = Texture::LoadFromFile("resources/uv_grid_2.png");
+}
+
+void dae::Renderer::InitializeWeek3()
+{
+	//Initialize Camera
+	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+
 	m_Meshes.emplace_back(
 		Mesh{
 			{
@@ -93,7 +126,6 @@ void Renderer::Render()
 	
 }
 
-//todo make one that does same but than for the meshes
 void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const
 {
 	vertices_out.clear();
@@ -118,6 +150,34 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 		transformedVertex.position.z = PojectedVertex.z; // Keep Z for depth buffering
 
 		vertices_out.emplace_back(transformedVertex);
+	}
+}
+void Renderer::VertexTransformationFunction(Mesh& mesh) const
+{
+	mesh.vertices_out.clear();
+	mesh.vertices_out.reserve(mesh.vertices.size());
+
+	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+
+	for (const Vertex& vertex : mesh.vertices)
+	{
+		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position) };
+
+		Vector3 PojectedVertex{
+			(viewPosition.x / viewPosition.z) / (aspectRatio * m_Camera.fov),
+			(viewPosition.y / viewPosition.z) / (aspectRatio * m_Camera.fov),
+			viewPosition.z
+		};
+
+		Vertex_Out transformedVertex;
+		transformedVertex.color = vertex.color;
+		transformedVertex.uv = vertex.uv;
+
+		transformedVertex.position.x = (PojectedVertex.x + 1.0f) / 2.0f * static_cast<float>(m_Width);
+		transformedVertex.position.y = (1.0f - PojectedVertex.y) / 2.0f * static_cast<float>(m_Width);
+		transformedVertex.position.z = PojectedVertex.z; // Keep Z for depth buffering
+
+		mesh.vertices_out.emplace_back(transformedVertex);
 	}
 }
 
@@ -217,12 +277,11 @@ void Renderer::SceneWeek1()
 		}
 	}
 }
-
 void Renderer::SceneWeek2()
 {
 	for (Mesh& mesh : m_Meshes)
 	{
-		VertexTransformationFunction(mesh.vertices, mesh.vertices_out);
+		VertexTransformationFunction(mesh);
 
 		if(mesh.primitiveTopology == PrimitiveTopology::TriangleStrip)
 		{
@@ -234,6 +293,24 @@ void Renderer::SceneWeek2()
 		}
 	}
 }
+void Renderer::SceneWeek3()
+{
+	for (Mesh& mesh : m_Meshes)
+	{
+		VertexTransformationFunction(mesh);
+
+		if (mesh.primitiveTopology == PrimitiveTopology::TriangleStrip)
+		{
+			TriangleSrip(mesh);
+		}
+		else
+		{
+			TriangleList(mesh);
+		}
+	}
+}
+
+
 void Renderer::TriangleSrip(const Mesh& mesh)
 {
 	for (size_t i = 0; i < mesh.indices.size() - 2; i++)
