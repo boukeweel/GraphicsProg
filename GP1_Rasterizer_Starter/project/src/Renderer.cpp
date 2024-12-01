@@ -342,9 +342,9 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 	const Vector2 V1 = { mesh.vertices_out[v1].position.x, mesh.vertices_out[v1].position.y };
 	const Vector2 V2 = { mesh.vertices_out[v2].position.x, mesh.vertices_out[v2].position.y };
 
-	const float z0 = mesh.vertices_out[v0].position.w;
-	const float z1 = mesh.vertices_out[v1].position.w;
-	const float z2 = mesh.vertices_out[v2].position.w;
+	const float w0 = mesh.vertices_out[v0].position.w;
+	const float w1 = mesh.vertices_out[v1].position.w;
+	const float w2 = mesh.vertices_out[v2].position.w;
 
 	const BoundaryBox boundaryBox{
 		{
@@ -380,34 +380,42 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 				};
 
 				//get the depth of triangle
-				const float zInterplation = 1.0f / (
-					weights.x / z0 +
-					weights.y / z1 +
-					weights.z / z2);
+				const float nonlinearDepth = 1.0f / (
+					weights.x /  (1 / mesh.vertices_out[v0].position.z) +
+					weights.y / (1 / mesh.vertices_out[v1].position.z) +
+					weights.z / (1 /mesh.vertices_out[v2].position.z));
 				//get the index where in screen this pixel is
 				const int bufferIndex = px + py * m_Width;
 
-				if (zInterplation < m_pDepthBufferPixels[bufferIndex])
+				if(nonlinearDepth < 0 || nonlinearDepth > 1)
+					continue;
+
+				if (nonlinearDepth < m_pDepthBufferPixels[bufferIndex])
 				{
-					m_pDepthBufferPixels[bufferIndex] = zInterplation;
+					m_pDepthBufferPixels[bufferIndex] = nonlinearDepth;
 
 					const Vector2 uv0 = mesh.vertices_out[v0].uv;
 					const Vector2 uv1 = mesh.vertices_out[v1].uv;
 					const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-					const Vector2 interpolatedUV =
-						( uv0 / z0 * weights.x
-						+ uv1 / z1 * weights.y
-						+ uv2 / z2 * weights.z) * zInterplation;
+					const float linearDepth = 1.0f / (
+						weights.x / w0 +
+						weights.y / w1 +
+						weights.z / w2);
 
-					const ColorRGB color{m_pTexture->Sample(interpolatedUV) };
+					const Vector2 interpolatedUV =
+						(uv0 / w0 * weights.x
+						+ uv1 / w1 * weights.y
+						+ uv2 / w2 * weights.z) * linearDepth;
+
+					const ColorRGB color{ m_pTexture->Sample(interpolatedUV) };
 
 					// Map color to buffer
 					m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
 						static_cast<uint8_t>(color.r * 255),
 						static_cast<uint8_t>(color.g * 255),
 						static_cast<uint8_t>(color.b * 255));
-				}
+				};
 			}
 		}
 	}
