@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -33,7 +33,7 @@
 #include "SDL_video.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -85,7 +85,7 @@ extern DECLSPEC SDL_Window * SDLCALL SDL_GetMouseFocus(void);
  *
  * The current button state is returned as a button bitmask, which can be
  * tested using the `SDL_BUTTON(X)` macros (where `X` is generally 1 for the
- * left, 2 for middle, 3 for the right button), and `x` and `y` are set to the
+ * left, 2 for middle, 3 for the m_Right button), and `x` and `y` are set to the
  * mouse cursor position relative to the focus window. You can pass NULL for
  * either `x` or `y`.
  *
@@ -137,7 +137,7 @@ extern DECLSPEC Uint32 SDLCALL SDL_GetGlobalMouseState(int *x, int *y);
  *
  * The current button state is returned as a button bitmask, which can be
  * tested using the `SDL_BUTTON(X)` macros (where `X` is generally 1 for the
- * left, 2 for middle, 3 for the right button), and `x` and `y` are set to the
+ * left, 2 for middle, 3 for the m_Right button), and `x` and `y` are set to the
  * mouse deltas since the last call to SDL_GetRelativeMouseState() or since
  * event initialization. You can pass NULL for either `x` or `y`.
  *

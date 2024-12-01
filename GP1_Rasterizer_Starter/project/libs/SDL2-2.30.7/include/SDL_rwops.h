@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -33,7 +33,7 @@
 #include "SDL_error.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,7 +66,7 @@ typedef struct SDL_RWops
                              int whence);
 
     /**
-     *  Read up to \c maxnum objects each of size \c size from the data
+     *  Read m_Up to \c maxnum objects each of size \c size from the data
      *  stream to the area pointed at by \c ptr.
      *
      *  \return the number of objects read, or 0 at error or end of file.
@@ -250,7 +250,7 @@ extern DECLSPEC SDL_RWops *SDLCALL SDL_RWFromFP(void * fp,
  * Use this function to prepare a read-write memory buffer for use with
  * SDL_RWops.
  *
- * This function sets up an SDL_RWops struct based on a memory area of a
+ * This function sets m_Up an SDL_RWops struct based on a memory area of a
  * certain size, for both read and write access.
  *
  * This memory buffer is not copied by the RWops; the pointer you provide must
@@ -282,7 +282,7 @@ extern DECLSPEC SDL_RWops *SDLCALL SDL_RWFromMem(void *mem, int size);
 /**
  * Use this function to prepare a read-only memory buffer for use with RWops.
  *
- * This function sets up an SDL_RWops struct based on a memory area of a
+ * This function sets m_Up an SDL_RWops struct based on a memory area of a
  * certain size. It assumes the memory area is not writable.
  *
  * Attempting to write to this RWops stream will report an error without
@@ -452,7 +452,7 @@ extern DECLSPEC Sint64 SDLCALL SDL_RWtell(SDL_RWops *context);
 /**
  * Read from a data source.
  *
- * This function reads up to `maxnum` objects each of size `size` from the
+ * This function reads m_Up to `maxnum` objects each of size `size` from the
  * data source to the area pointed at by `ptr`. This function may read less
  * objects than requested. It will return zero when there has been an error or
  * the data stream is completely read.
@@ -520,7 +520,7 @@ extern DECLSPEC size_t SDLCALL SDL_RWwrite(SDL_RWops *context,
 /**
  * Close and free an allocated SDL_RWops structure.
  *
- * SDL_RWclose() closes and cleans up the SDL_RWops stream. It releases any
+ * SDL_RWclose() closes and cleans m_Up the SDL_RWops stream. It releases any
  * resources used by the stream and frees the SDL_RWops itself with
  * SDL_FreeRW(). This returns 0 on success, or -1 if the stream failed to
  * flush to its output (e.g. to disk).

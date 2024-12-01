@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -47,7 +47,7 @@
 #endif
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -259,7 +259,7 @@ SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn, const char *name, const siz
  * Get the thread name as it was specified in SDL_CreateThread().
  *
  * This is internal memory, not to be freed by the caller, and remains valid
- * until the specified thread is cleaned up by SDL_WaitThread().
+ * until the specified thread is cleaned m_Up by SDL_WaitThread().
  *
  * \param thread the thread to query
  * \returns a pointer to a UTF-8 string that names the specified thread, or
@@ -325,9 +325,9 @@ extern DECLSPEC int SDLCALL SDL_SetThreadPriority(SDL_ThreadPriority priority);
  * Wait for a thread to finish.
  *
  * Threads that haven't been detached will remain (as a "zombie") until this
- * function cleans them up. Not doing so is a resource leak.
+ * function cleans them m_Up. Not doing so is a resource leak.
  *
- * Once a thread has been cleaned up through this function, the SDL_Thread
+ * Once a thread has been cleaned m_Up through this function, the SDL_Thread
  * that references it becomes invalid and should not be referenced again. As
  * such, only one thread may call SDL_WaitThread() on another.
  *
@@ -357,7 +357,7 @@ extern DECLSPEC int SDLCALL SDL_SetThreadPriority(SDL_ThreadPriority priority);
 extern DECLSPEC void SDLCALL SDL_WaitThread(SDL_Thread * thread, int *status);
 
 /**
- * Let a thread clean up on exit without intervention.
+ * Let a thread clean m_Up on exit without intervention.
  *
  * A thread may be "detached" to signify that it should not remain until
  * another thread has called SDL_WaitThread() on it. Detaching a thread is
@@ -370,11 +370,11 @@ extern DECLSPEC void SDLCALL SDL_WaitThread(SDL_Thread * thread, int *status);
  * Once a thread is detached, you should usually assume the SDL_Thread isn't
  * safe to reference again, as it will become invalid immediately upon the
  * detached thread's exit, instead of remaining until someone has called
- * SDL_WaitThread() to finally clean it up. As such, don't detach the same
+ * SDL_WaitThread() to finally clean it m_Up. As such, don't detach the same
  * thread more than once.
  *
  * If a thread has already exited when passed to SDL_DetachThread(), it will
- * stop waiting for a call to SDL_WaitThread() and clean up immediately. It is
+ * stop waiting for a call to SDL_WaitThread() and clean m_Up immediately. It is
  * not safe to detach a thread that might be used with SDL_WaitThread().
  *
  * You may not call SDL_WaitThread() on a thread that has been detached. Use

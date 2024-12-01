@@ -32,10 +32,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	InitializeWeek3();
 }
 
-void dae::Renderer::InitializeWeek2()
+void Renderer::InitializeWeek2()
 {
 	//Initialize Camera
-	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+	m_Camera.Initialize(60.f, { .0f,.0f,-10.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
 
 	m_Meshes.emplace_back(
 		Mesh{
@@ -61,11 +61,10 @@ void dae::Renderer::InitializeWeek2()
 
 	m_pTexture = Texture::LoadFromFile("resources/uv_grid_2.png");
 }
-
-void dae::Renderer::InitializeWeek3()
+void Renderer::InitializeWeek3()
 {
 	//Initialize Camera
-	m_Camera.Initialize(60.f, { .0f,.0f,-10.f });
+	m_Camera.Initialize(60.f, { .0f,.0f,-10.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
 
 	m_Meshes.emplace_back(
 		Mesh{
@@ -115,7 +114,8 @@ void Renderer::Render()
 	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
 	//SceneWeek1();
-	SceneWeek2();
+	//SceneWeek2();
+	SceneWeek3();
 
 	//@END
 	//Update SDL Surface
@@ -136,11 +136,11 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 	for (const Vertex& vertex : vertices_in)
 	{
 		// Transform the vertex position using the view matrix
-		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position)};
+		Vector3 viewPosition{ m_Camera.m_ViewMatrix.TransformPoint(vertex.position)};
 
 		Vector3 PojectedVertex{
-			(viewPosition.x / viewPosition.z) / (aspectRatio * m_Camera.fov),
-			(viewPosition.y / viewPosition.z) / (aspectRatio * m_Camera.fov),
+			(viewPosition.x / viewPosition.z) / (aspectRatio * m_Camera.m_Fov),
+			(viewPosition.y / viewPosition.z) / (aspectRatio * m_Camera.m_Fov),
 			viewPosition.z
 		};
 
@@ -154,30 +154,22 @@ void Renderer::VertexTransformationFunction(const std::vector<Vertex>& vertices_
 }
 void Renderer::VertexTransformationFunction(Mesh& mesh) const
 {
-	mesh.vertices_out.clear();
-	mesh.vertices_out.reserve(mesh.vertices.size());
+	mesh.ResetVertices();
 
-	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	const Matrix WorldViewProjectionMatrix = mesh.worldMatrix * m_Camera.m_ViewMatrix * m_Camera.m_ProjectionMatrix;
 
-	for (const Vertex& vertex : mesh.vertices)
+	for (Vertex_Out& vertex : mesh.vertices_out)
 	{
-		Vector3 viewPosition{ m_Camera.viewMatrix.TransformPoint(vertex.position) };
+		vertex.position =  WorldViewProjectionMatrix.TransformPoint(vertex.position);
 
-		Vector3 PojectedVertex{
-			(viewPosition.x / viewPosition.z) / (aspectRatio * m_Camera.fov),
-			(viewPosition.y / viewPosition.z) / (aspectRatio * m_Camera.fov),
-			viewPosition.z
-		};
+		vertex.position.x /= vertex.position.w;
+		vertex.position.y /= vertex.position.w;
+		vertex.position.z /= vertex.position.w;
 
-		Vertex_Out transformedVertex;
-		transformedVertex.color = vertex.color;
-		transformedVertex.uv = vertex.uv;
+		vertex.position.z = 1.f / vertex.position.z;
 
-		transformedVertex.position.x = (PojectedVertex.x + 1.0f) / 2.0f * static_cast<float>(m_Width);
-		transformedVertex.position.y = (1.0f - PojectedVertex.y) / 2.0f * static_cast<float>(m_Width);
-		transformedVertex.position.z = PojectedVertex.z; // Keep Z for depth buffering
-
-		mesh.vertices_out.emplace_back(transformedVertex);
+		vertex.position.x = (vertex.position.x + 1.f) / 2.f * static_cast<float>(m_Width);
+		vertex.position.y = (1.f - vertex.position.y) / 2.f * static_cast<float>(m_Height);
 	}
 }
 
@@ -350,9 +342,9 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 	const Vector2 V1 = { mesh.vertices_out[v1].position.x, mesh.vertices_out[v1].position.y };
 	const Vector2 V2 = { mesh.vertices_out[v2].position.x, mesh.vertices_out[v2].position.y };
 
-	const float z0 = mesh.vertices_out[v0].position.z;
-	const float z1 = mesh.vertices_out[v1].position.z;
-	const float z2 = mesh.vertices_out[v2].position.z;
+	const float z0 = mesh.vertices_out[v0].position.w;
+	const float z1 = mesh.vertices_out[v1].position.w;
+	const float z2 = mesh.vertices_out[v2].position.w;
 
 	const BoundaryBox boundaryBox{
 		{

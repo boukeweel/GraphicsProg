@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -33,7 +33,7 @@
 #include "SDL_error.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 /* *INDENT-OFF* */
 extern "C" {
@@ -74,8 +74,8 @@ typedef enum
     SDL_SENSOR_GYRO,            /**< Gyroscope */
     SDL_SENSOR_ACCEL_L,         /**< Accelerometer for left Joy-Con controller and Wii nunchuk */
     SDL_SENSOR_GYRO_L,          /**< Gyroscope for left Joy-Con controller */
-    SDL_SENSOR_ACCEL_R,         /**< Accelerometer for right Joy-Con controller */
-    SDL_SENSOR_GYRO_R           /**< Gyroscope for right Joy-Con controller */
+    SDL_SENSOR_ACCEL_R,         /**< Accelerometer for m_Right Joy-Con controller */
+    SDL_SENSOR_GYRO_R           /**< Gyroscope for m_Right Joy-Con controller */
 } SDL_SensorType;
 
 /**
@@ -144,7 +144,7 @@ extern DECLSPEC void SDLCALL SDL_LockSensors(void);
 extern DECLSPEC void SDLCALL SDL_UnlockSensors(void);
 
 /**
- * Count the number of sensors attached to the system right now.
+ * Count the number of sensors attached to the system m_Right now.
  *
  * \returns the number of sensors detected.
  *

@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -22,7 +22,7 @@
 /**
  *  \file begin_code.h
  *
- *  This file sets things up for C dynamic library function definitions,
+ *  This file sets things m_Up for C dynamic library function definitions,
  *  static inlined functions, and structures aligned at 4-byte alignment.
  *  If you don't like ugly C preprocessor code, don't look at this file. :)
  */

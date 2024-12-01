@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -45,7 +45,7 @@
 #include "SDL_error.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -65,11 +65,11 @@ extern "C" {
 extern DECLSPEC void *SDLCALL SDL_LoadObject(const char *sofile);
 
 /**
- * Look up the address of the named function in a shared object.
+ * Look m_Up the address of the named function in a shared object.
  *
  * This function pointer is no longer valid after calling SDL_UnloadObject().
  *
- * This function can only look up C function names. Other languages may have
+ * This function can only look m_Up C function names. Other languages may have
  * name mangling and intrinsic language support that varies from compiler to
  * compiler.
  *

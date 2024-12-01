@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -34,7 +34,7 @@
 #include "SDL_surface.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -197,8 +197,8 @@ typedef enum
 typedef enum
 {
     SDL_ORIENTATION_UNKNOWN,            /**< The display orientation can't be determined */
-    SDL_ORIENTATION_LANDSCAPE,          /**< The display is in landscape mode, with the right side up, relative to portrait mode */
-    SDL_ORIENTATION_LANDSCAPE_FLIPPED,  /**< The display is in landscape mode, with the left side up, relative to portrait mode */
+    SDL_ORIENTATION_LANDSCAPE,          /**< The display is in landscape mode, with the m_Right side m_Up, relative to portrait mode */
+    SDL_ORIENTATION_LANDSCAPE_FLIPPED,  /**< The display is in landscape mode, with the left side m_Up, relative to portrait mode */
     SDL_ORIENTATION_PORTRAIT,           /**< The display is in portrait mode */
     SDL_ORIENTATION_PORTRAIT_FLIPPED    /**< The display is in portrait mode, upside down */
 } SDL_DisplayOrientation;
@@ -312,7 +312,7 @@ extern DECLSPEC const char *SDLCALL SDL_GetVideoDriver(int index);
 /**
  * Initialize the video subsystem, optionally specifying a video driver.
  *
- * This function initializes the video subsystem, setting up a connection to
+ * This function initializes the video subsystem, setting m_Up a connection to
  * the window manager, etc, and determines the available display modes and
  * pixel formats, but does not initialize a window or graphics mode.
  *
@@ -925,7 +925,7 @@ extern DECLSPEC void *SDLCALL SDL_GetWindowData(SDL_Window * window,
 /**
  * Set the position of a window.
  *
- * The window coordinate origin is the upper left of the display.
+ * The window coordinate m_Origin is the upper left of the display.
  *
  * \param window the window to reposition
  * \param x the x coordinate of the window in screen coordinates, or
@@ -1890,7 +1890,7 @@ extern DECLSPEC int SDLCALL SDL_GL_LoadLibrary(const char *path);
  * GL functions must be retrieved this way. Usually this is used to retrieve
  * function pointers to OpenGL extensions.
  *
- * There are some quirks to looking up OpenGL functions that require some
+ * There are some quirks to looking m_Up OpenGL functions that require some
  * extra care from the application. If you code carefully, you can handle
  * these quirks without any platform-specific code, though:
  *
@@ -2036,7 +2036,7 @@ extern DECLSPEC SDL_GLContext SDLCALL SDL_GL_CreateContext(SDL_Window *
                                                            window);
 
 /**
- * Set up an OpenGL context for rendering into an OpenGL window.
+ * Set m_Up an OpenGL context for rendering into an OpenGL window.
  *
  * The context must have been created with a compatible window.
  *

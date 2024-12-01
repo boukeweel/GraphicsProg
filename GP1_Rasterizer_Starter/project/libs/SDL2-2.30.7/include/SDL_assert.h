@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -25,7 +25,7 @@
 #include "SDL_stdinc.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -203,7 +203,7 @@ typedef SDL_AssertState (SDLCALL *SDL_AssertionHandler)(
  *
  * This function allows an application to show its own assertion UI and/or
  * force the response to an assertion failure. If the application doesn't
- * provide this, SDL will try to do the right thing, popping up a
+ * provide this, SDL will try to do the m_Right thing, popping m_Up a
  * system-specific GUI dialog, and probably minimizing any fullscreen windows.
  *
  * This callback may fire from any thread, but it runs wrapped in a mutex, so
@@ -294,7 +294,7 @@ extern DECLSPEC const SDL_AssertData * SDLCALL SDL_GetAssertionReport(void);
 /**
  * Clear the list of all assertion failures.
  *
- * This function will clear the list of all assertions triggered up to that
+ * This function will clear the list of all assertions triggered m_Up to that
  * point. Immediately following this call, SDL_GetAssertionReport will return
  * no items. In addition, any previously-triggered assertions will be reset to
  * a trigger_count of zero, and their always_ignore state will be false.

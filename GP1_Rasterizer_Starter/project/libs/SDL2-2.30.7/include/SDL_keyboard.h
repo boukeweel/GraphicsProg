@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -34,7 +34,7 @@
 #include "SDL_video.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,7 +78,7 @@ extern DECLSPEC SDL_Window * SDLCALL SDL_GetKeyboardFocus(void);
  *
  * This function gives you the current state after all events have been
  * processed, so if a key or button has been pressed and released before you
- * process events, then the pressed state will never show up in the
+ * process events, then the pressed state will never show m_Up in the
  * SDL_GetKeyboardState() calls.
  *
  * Note: This function doesn't take into account whether shift has been
@@ -97,7 +97,7 @@ extern DECLSPEC const Uint8 *SDLCALL SDL_GetKeyboardState(int *numkeys);
 /**
  * Clear the state of the keyboard
  *
- * This function will generate key up events for all pressed keys.
+ * This function will generate key m_Up events for all pressed keys.
  *
  * \since This function is available since SDL 2.24.0.
  *

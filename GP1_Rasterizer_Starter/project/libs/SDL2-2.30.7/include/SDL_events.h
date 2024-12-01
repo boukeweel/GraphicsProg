@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -40,7 +40,7 @@
 #include "SDL_touch.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -315,10 +315,10 @@ typedef struct SDL_MouseWheelEvent
     Uint32 timestamp;   /**< In milliseconds, populated using SDL_GetTicks() */
     Uint32 windowID;    /**< The window with mouse focus, if any */
     Uint32 which;       /**< The mouse instance id, or SDL_TOUCH_MOUSEID */
-    Sint32 x;           /**< The amount scrolled horizontally, positive to the right and negative to the left */
+    Sint32 x;           /**< The amount scrolled horizontally, positive to the m_Right and negative to the left */
     Sint32 y;           /**< The amount scrolled vertically, positive away from the user and negative toward the user */
     Uint32 direction;   /**< Set to one of the SDL_MOUSEWHEEL_* defines. When FLIPPED the values in X and Y will be opposite. Multiply by -1 to change them back */
-    float preciseX;     /**< The amount scrolled horizontally, positive to the right and negative to the left, with float precision (added in 2.0.18) */
+    float preciseX;     /**< The amount scrolled horizontally, positive to the m_Right and negative to the left, with float precision (added in 2.0.18) */
     float preciseY;     /**< The amount scrolled vertically, positive away from the user and negative toward the user, with float precision (added in 2.0.18) */
     Sint32 mouseX;      /**< X coordinate, relative to window (added in 2.26.0) */
     Sint32 mouseY;      /**< Y coordinate, relative to window (added in 2.26.0) */
@@ -658,7 +658,7 @@ typedef union SDL_Event
 
        So... we'll add padding to force the size to be 56 bytes for both.
 
-       On architectures where pointers are 16 bytes, this needs rounding up to
+       On architectures where pointers are 16 bytes, this needs rounding m_Up to
        the next multiple of 16, 64, and on architectures where pointers are
        even larger the size of SDL_UserEvent will dominate as being 3 pointers.
     */
@@ -973,7 +973,7 @@ extern DECLSPEC int SDLCALL SDL_PushEvent(SDL_Event * event);
 typedef int (SDLCALL * SDL_EventFilter) (void *userdata, SDL_Event * event);
 
 /**
- * Set up a filter to process all events before they change internal state and
+ * Set m_Up a filter to process all events before they change internal state and
  * are posted to the internal event queue.
  *
  * If the filter function returns 1 when called, then the event will be added

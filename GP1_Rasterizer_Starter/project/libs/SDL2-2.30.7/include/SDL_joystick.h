@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -47,7 +47,7 @@
 #include "SDL_mutex.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -705,7 +705,7 @@ extern DECLSPEC SDL_JoystickID SDLCALL SDL_JoystickInstanceID(SDL_Joystick *joys
  * Get the number of general axis controls on a joystick.
  *
  * Often, the directional pad on a game controller will either look like 4
- * separate buttons or a POV hat, and not axes, but all of this is up to the
+ * separate buttons or a POV hat, and not axes, but all of this is m_Up to the
  * device and platform.
  *
  * \param joystick an SDL_Joystick structure containing joystick information

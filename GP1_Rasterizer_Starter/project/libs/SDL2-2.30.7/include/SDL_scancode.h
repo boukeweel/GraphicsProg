@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -100,7 +100,7 @@ typedef enum
     SDL_SCANCODE_LEFTBRACKET = 47,
     SDL_SCANCODE_RIGHTBRACKET = 48,
     SDL_SCANCODE_BACKSLASH = 49, /**< Located at the lower left of the return
-                                  *   key on ISO keyboards and at the right end
+                                  *   key on ISO keyboards and at the m_Right end
                                   *   of the QWERTY row on ANSI keyboards.
                                   *   Produces REVERSE SOLIDUS (backslash) and
                                   *   VERTICAL LINE in a US layout, REVERSE
@@ -348,7 +348,7 @@ typedef enum
      *  See https://usb.org/sites/default/files/hut1_2.pdf
      *
      *  There are way more keys in the spec than we can represent in the
-     *  current scancode range, so pick the ones that commonly come up in
+     *  current scancode range, so pick the ones that commonly come m_Up in
      *  real world usage.
      */
     /* @{ */
@@ -420,7 +420,7 @@ typedef enum
                                       of the display. */
     SDL_SCANCODE_SOFTRIGHT = 288, /**< Usually situated below the display on phones and
                                        used as a multi-function feature key for selecting
-                                       a software defined function shown on the bottom right
+                                       a software defined function shown on the bottom m_Right
                                        of the display. */
     SDL_SCANCODE_CALL = 289, /**< Used for accepting phone calls. */
     SDL_SCANCODE_ENDCALL = 290, /**< Used for rejecting phone calls. */

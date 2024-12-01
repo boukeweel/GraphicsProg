@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -84,7 +84,7 @@
 #define SDLMAIN_DECLSPEC    DECLSPEC
 
 #elif defined(__NACL__)
-/* On NACL we use ppapi_simple to set up the application helper code,
+/* On NACL we use ppapi_simple to set m_Up the application helper code,
    then wait for the first PSE_INSTANCE_DIDCHANGEVIEW event before 
    starting the user main function.
    All user code is run in a separate thread by ppapi_simple, thus 
@@ -110,7 +110,7 @@
 
 #elif defined(__3DS__)
 /*
-  On N3DS, SDL provides a main function that sets up the screens
+  On N3DS, SDL provides a main function that sets m_Up the screens
   and storage.
 
   If you provide this yourself, you may define SDL_MAIN_HANDLED

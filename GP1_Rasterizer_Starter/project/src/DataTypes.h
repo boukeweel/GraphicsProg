@@ -38,6 +38,22 @@ namespace dae
 
 		std::vector<Vertex_Out> vertices_out{};
 		Matrix worldMatrix{};
+
+		void ResetVertices()
+		{
+			vertices_out.clear();
+			vertices_out.reserve(vertices.size());
+
+			for (size_t i = 0; i < vertices.size(); ++i)
+			{
+				Vertex_Out vertex_out{
+					{ vertices[i].position.x,vertices[i].position.y ,vertices[i].position.z ,1.f },
+					vertices[i].color,
+					vertices[i].uv
+				};
+				vertices_out.emplace_back(vertex_out);
+			}
+		}
 	};
 
 	struct BoundaryBox

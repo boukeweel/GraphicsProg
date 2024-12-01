@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -26,7 +26,7 @@
 #include "SDL_video.h"      /* For SDL_Window */
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,8 +39,8 @@ typedef enum
     SDL_MESSAGEBOX_ERROR                 = 0x00000010,   /**< error dialog */
     SDL_MESSAGEBOX_WARNING               = 0x00000020,   /**< warning dialog */
     SDL_MESSAGEBOX_INFORMATION           = 0x00000040,   /**< informational dialog */
-    SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT = 0x00000080,   /**< buttons placed left to right */
-    SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT = 0x00000100    /**< buttons placed right to left */
+    SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT = 0x00000080,   /**< buttons placed left to m_Right */
+    SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT = 0x00000100    /**< buttons placed m_Right to left */
 } SDL_MessageBoxFlags;
 
 /**

@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -64,7 +64,7 @@
 
 #include "begin_code.h"
 
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -194,7 +194,7 @@ extern DECLSPEC void SDLCALL SDL_MemoryBarrierAcquireFunction(void);
 /* Information from:
    https://chromium.googlesource.com/chromium/chromium/+/trunk/base/atomicops_internals_arm_gcc.h#19
 
-   The Linux kernel provides a helper function which provides the right code for a memory barrier,
+   The Linux kernel provides a helper function which provides the m_Right code for a memory barrier,
    hard-coded at address 0xffff0fa0
 */
 typedef void (*SDL_KernelMemoryBarrierFunc)();

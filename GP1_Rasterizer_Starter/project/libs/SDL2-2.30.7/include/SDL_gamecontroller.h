@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -35,7 +35,7 @@
 #include "SDL_joystick.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -704,8 +704,8 @@ SDL_GameControllerHasAxis(SDL_GameController *gamecontroller, SDL_GameController
  *
  * The axis indices start at index 0.
  *
- * For thumbsticks, the state is a value ranging from -32768 (up/left)
- * to 32767 (down/right).
+ * For thumbsticks, the state is a value ranging from -32768 (m_Up/left)
+ * to 32767 (down/m_Right).
  *
  * Triggers range from 0 when released to 32767 when fully pressed, and
  * never return a negative value. Note that this differs from the value
@@ -747,9 +747,9 @@ typedef enum
     SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
     SDL_CONTROLLER_BUTTON_MISC1,    /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
     SDL_CONTROLLER_BUTTON_PADDLE1,  /* Xbox Elite paddle P1 (upper left, facing the back) */
-    SDL_CONTROLLER_BUTTON_PADDLE2,  /* Xbox Elite paddle P3 (upper right, facing the back) */
+    SDL_CONTROLLER_BUTTON_PADDLE2,  /* Xbox Elite paddle P3 (upper m_Right, facing the back) */
     SDL_CONTROLLER_BUTTON_PADDLE3,  /* Xbox Elite paddle P2 (lower left, facing the back) */
-    SDL_CONTROLLER_BUTTON_PADDLE4,  /* Xbox Elite paddle P4 (lower right, facing the back) */
+    SDL_CONTROLLER_BUTTON_PADDLE4,  /* Xbox Elite paddle P4 (lower m_Right, facing the back) */
     SDL_CONTROLLER_BUTTON_TOUCHPAD, /* PS4/PS5 touchpad button */
     SDL_CONTROLLER_BUTTON_MAX
 } SDL_GameControllerButton;

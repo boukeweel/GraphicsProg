@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -53,7 +53,7 @@
 #include "SDL_video.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -291,7 +291,7 @@ extern DECLSPEC int SDLCALL SDL_GetRendererInfo(SDL_Renderer * renderer,
 /**
  * Get the output size in pixels of a rendering context.
  *
- * Due to high-dpi displays, you might end up with a rendering context that
+ * Due to high-dpi displays, you might end m_Up with a rendering context that
  * has more pixels than the window that contains it, so use this instead of
  * SDL_GetWindowSize() to decide how much drawing area you have.
  *
@@ -1417,7 +1417,7 @@ extern DECLSPEC int SDLCALL SDL_RenderCopy(SDL_Renderer * renderer,
  *
  * Copy a portion of the texture to the current rendering target, optionally
  * rotating it by angle around the given center and also flipping it
- * top-bottom and/or left-right.
+ * top-bottom and/or left-m_Right.
  *
  * The texture is blended with the destination based on its blend mode set
  * with SDL_SetTextureBlendMode().
@@ -1798,7 +1798,7 @@ extern DECLSPEC void SDLCALL SDL_DestroyRenderer(SDL_Renderer * renderer);
  *
  * In all other cases, you can ignore this function. This is only here to get
  * maximum performance out of a specific situation. In all other cases, SDL
- * will do the right thing, perhaps at a performance loss.
+ * will do the m_Right thing, perhaps at a performance loss.
  *
  * This function is first available in SDL 2.0.10, and is not needed in 2.0.9
  * and earlier, as earlier versions did not queue rendering commands at all,

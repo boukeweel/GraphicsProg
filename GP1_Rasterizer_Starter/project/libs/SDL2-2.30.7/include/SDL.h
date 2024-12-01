@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -65,7 +65,7 @@
 #include "SDL_misc.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -199,7 +199,7 @@ extern DECLSPEC void SDLCALL SDL_QuitSubSystem(Uint32 flags);
 extern DECLSPEC Uint32 SDLCALL SDL_WasInit(Uint32 flags);
 
 /**
- * Clean up all initialized subsystems.
+ * Clean m_Up all initialized subsystems.
  *
  * You should call this function even if you have already shutdown each
  * initialized subsystem with SDL_QuitSubSystem(). It is safe to call this

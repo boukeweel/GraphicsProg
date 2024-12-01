@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -112,7 +112,7 @@
 #include "SDL_joystick.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -197,7 +197,7 @@ typedef struct _SDL_Haptic SDL_Haptic;
 /**
  *  \brief Sawtoothup wave effect supported.
  *
- *  Periodic haptic effect that simulates saw tooth up waves.
+ *  Periodic haptic effect that simulates saw tooth m_Up waves.
  *
  *  \sa SDL_HapticPeriodic
  */
@@ -596,7 +596,7 @@ typedef struct SDL_HapticPeriodic
  *  Direction is handled by condition internals instead of a direction member.
  *  The condition effect specific members have three parameters.  The first
  *  refers to the X axis, the second refers to the Y axis and the third
- *  refers to the Z axis.  The right terms refer to the positive side of the
+ *  refers to the Z axis.  The m_Right terms refer to the positive side of the
  *  axis and the left terms refer to the negative side of the axis.  Please
  *  refer to the ::SDL_HapticDirection diagram for which side is positive and
  *  which is negative.
@@ -676,7 +676,7 @@ typedef struct SDL_HapticRamp
  * This struct is exclusively for the ::SDL_HAPTIC_LEFTRIGHT effect.
  *
  * The Left/Right effect is used to explicitly control the large and small
- * motors, commonly found in modern game controllers. The small (right) motor
+ * motors, commonly found in modern game controllers. The small (m_Right) motor
  * is high frequency, and the large (left) motor is low frequency.
  *
  * \sa SDL_HAPTIC_LEFTRIGHT

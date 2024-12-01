@@ -12,53 +12,62 @@ namespace dae
 	{
 		Camera() = default;
 
-		Camera(const Vector3& _origin, float _fovAngle):
-			origin{_origin},
-			fovAngle{_fovAngle}
+		Camera(const Vector3& _origin, float _fovAngle, float _aspectRatio):
+			m_Origin{_origin},
+			M_FovAngle{_fovAngle},
+			m_AspectRatio{_aspectRatio}
 		{
 		}
 
+		Vector3 m_Origin{};
+		float M_FovAngle{90.f};
+		float m_Fov{ tanf((M_FovAngle * TO_RADIANS) / 2.f) };
+		float m_AspectRatio{};
 
-		Vector3 origin{};
-		float fovAngle{90.f};
-		float fov{ tanf((fovAngle * TO_RADIANS) / 2.f) };
+		float m_NearClippingPlane = 2.f;
+		float m_FarClippingPlane = 200.f;
 
-		Vector3 forward{Vector3::UnitZ};
-		Vector3 up{Vector3::UnitY};
-		Vector3 right{Vector3::UnitX};
+		Vector3 m_Forward{Vector3::UnitZ};
+		Vector3 m_Up{Vector3::UnitY};
+		Vector3 m_Right{Vector3::UnitX};
 
-		float totalPitch{};
-		float totalYaw{};
+		float m_TotalPitch{};
+		float m_TotalYaw{};
 
-		const float MoveSpeedKey{ 5.f };
-		const float MoveSpeedMouse{ 0.05f };
-		const float RotatedSpeed{ 0.01f };
+		const float m_MoveSpeedKey{ 5.f };
+		const float m_MoveSpeedMouse{ 0.05f };
+		const float m_RotatedSpeed{ 0.01f };
 
-		Matrix invViewMatrix{};
-		Matrix viewMatrix{};
+		Matrix m_InvViewMatrix{};
+		Matrix m_ViewMatrix{};
 
-		Matrix projectionMatrix;
+		Matrix m_ProjectionMatrix;
 
-		void Initialize(float _fovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f})
+		void Initialize(float _fovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f}, float _aspectRatio = 0)
 		{
-			fovAngle = _fovAngle;
-			fov = tanf((fovAngle * TO_RADIANS) / 2.f);
-
-			origin = _origin;
+			M_FovAngle = _fovAngle;
+			m_Fov = tanf((M_FovAngle * TO_RADIANS) / 2.f);
+			m_AspectRatio = _aspectRatio;
+			m_Origin = _origin;
 		}
 
 		void CalculateViewMatrix()
 		{
-			invViewMatrix = Matrix::CreateLookAtLH(origin, forward, up);
-			viewMatrix = invViewMatrix.Inverse();
+			m_InvViewMatrix = Matrix::CreateLookAtLH(m_Origin, m_Forward, m_Up);
+			m_ViewMatrix = m_InvViewMatrix.Inverse();
 		}
 
 		void CalculateProjectionMatrix()
 		{
-			//TODO W3
+			const float A{ m_FarClippingPlane / (m_FarClippingPlane - m_NearClippingPlane) };
+			const float B{ -(m_FarClippingPlane * m_NearClippingPlane) / (m_FarClippingPlane - m_NearClippingPlane) };
 
-			//ProjectionMatrix => Matrix::CreatePerspectiveFovLH(...) [not implemented yet]
-			//DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
+			m_ProjectionMatrix = Matrix{
+				{1.f / (m_AspectRatio * m_Fov),0,0,0},
+				{0,1.f / m_Fov,0,0},
+				{0,0,A,1},
+				{0,0,B,0}
+			};
 		}
 
 		void Update(Timer* pTimer)
@@ -98,39 +107,39 @@ namespace dae
 
 			if (MouseRightPressed && MouseLeftPressed)
 			{
-				InputVector.y -= mouseY * MoveSpeedMouse;
+				InputVector.y -= mouseY * m_MoveSpeedMouse;
 			}
 			else if (!MouseRightPressed && MouseLeftPressed)
 			{
-				InputVector.z -= mouseY * MoveSpeedMouse;
-				totalYaw -= mouseX * RotatedSpeed;
+				InputVector.z -= mouseY * m_MoveSpeedMouse;
+				m_TotalYaw -= mouseX * m_RotatedSpeed;
 			}
 			else if (MouseRightPressed && !MouseLeftPressed)
 			{
-				totalPitch -= mouseY * RotatedSpeed;
-				totalYaw -= mouseX * RotatedSpeed;
+				m_TotalPitch -= mouseY * m_RotatedSpeed;
+				m_TotalYaw -= mouseX * m_RotatedSpeed;
 			}
 
 
 			const Matrix pitchYawRotation
 			{
-				Vector3{cosf(totalYaw), 0, sinf(totalYaw)},
-				Vector3{sinf(totalYaw) * sinf(totalPitch), cosf(totalPitch), -sinf(totalPitch) * cosf(totalYaw)},
-				Vector3{-cosf(totalPitch) * sinf(totalYaw), sinf(totalPitch), cosf(totalPitch) * cosf(totalYaw)},
+				Vector3{cosf(m_TotalYaw), 0, sinf(m_TotalYaw)},
+				Vector3{sinf(m_TotalYaw) * sinf(m_TotalPitch), cosf(m_TotalPitch), -sinf(m_TotalPitch) * cosf(m_TotalYaw)},
+				Vector3{-cosf(m_TotalPitch) * sinf(m_TotalYaw), sinf(m_TotalPitch), cosf(m_TotalPitch) * cosf(m_TotalYaw)},
 				Vector3::Zero
 			};
 
-			forward = pitchYawRotation.TransformVector(Vector3::UnitZ);
-			right = Vector3::Cross(Vector3::UnitY, forward).Normalized();
-			up = Vector3::Cross(forward, right).Normalized();
+			m_Forward = pitchYawRotation.TransformVector(Vector3::UnitZ);
+			m_Right = Vector3::Cross(Vector3::UnitY, m_Forward).Normalized();
+			m_Up = Vector3::Cross(m_Forward, m_Right).Normalized();
 
 			InputVector = pitchYawRotation.TransformVector(InputVector);
 
-			origin += InputVector * deltaTime * MoveSpeedKey;
+			m_Origin += InputVector * deltaTime * m_MoveSpeedKey;
 
 			//Update Matrices
 			CalculateViewMatrix();
-			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
+			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when m_Fov/aspectRatio changes
 		}
 	};
 }

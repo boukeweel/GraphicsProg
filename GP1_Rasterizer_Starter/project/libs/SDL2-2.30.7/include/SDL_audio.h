@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -38,7 +38,7 @@
 #include "SDL_rwops.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -394,7 +394,7 @@ extern DECLSPEC const char *SDLCALL SDL_GetCurrentAudioDriver(void);
  *          fields modified.
  *
  *          This function returns a negative error code on failure to open the
- *          audio device or failure to set up the audio thread; call
+ *          audio device or failure to set m_Up the audio thread; call
  *          SDL_GetError() for more information.
  *
  * \since This function is available since SDL 2.0.0.
@@ -429,7 +429,7 @@ typedef Uint32 SDL_AudioDeviceID;
  * now.
  *
  * This function will return -1 if an explicit list of devices can't be
- * determined. Returning -1 is not an error. For example, if SDL is set up to
+ * determined. Returning -1 is not an error. For example, if SDL is set m_Up to
  * talk to a remote audio server, it can't list every one available on the
  * Internet, but it will still allow a specific host to be specified in
  * SDL_OpenAudioDevice().
@@ -1195,7 +1195,7 @@ extern DECLSPEC void SDLCALL SDL_MixAudioFormat(Uint8 * dst,
  * There are no limits on the amount of data you can queue, short of
  * exhaustion of address space. Queued data will drain to the device as
  * necessary without further intervention from you. If the device needs audio
- * but there is not enough queued, it will play silence to make up the
+ * but there is not enough queued, it will play silence to make m_Up the
  * difference. This means you will have skips in your audio playback if you
  * aren't routinely queueing sufficient data.
  *
@@ -1284,7 +1284,7 @@ extern DECLSPEC Uint32 SDLCALL SDL_DequeueAudio(SDL_AudioDeviceID dev, void *dat
  *
  * Once we've sent it to the hardware, this function can not decide the exact
  * byte boundary of what has been played. It's possible that we just gave the
- * hardware several kilobytes right before you called this function, but it
+ * hardware several kilobytes m_Right before you called this function, but it
  * hasn't played any of it yet, or maybe half of it, etc.
  *
  * For capture devices, this is the number of bytes that have been captured by
@@ -1470,7 +1470,7 @@ extern DECLSPEC void SDLCALL SDL_CloseAudio(void);
  *
  * The application should close open audio devices once they are no longer
  * needed. Calling this function will wait until the device's audio callback
- * is not running, release the audio hardware and then clean up internal
+ * is not running, release the audio hardware and then clean m_Up internal
  * state. No further audio will play from this device once this function
  * returns.
  *

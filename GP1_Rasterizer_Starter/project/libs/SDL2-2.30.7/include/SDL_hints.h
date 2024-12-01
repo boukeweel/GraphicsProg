@@ -10,7 +10,7 @@
   including commercial applications, and to alter it and redistribute it
   freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
+  1. The m_Origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
      in a product, an acknowledgment in the product documentation would be
      appreciated but is not required.
@@ -42,7 +42,7 @@
 #include "SDL_stdinc.h"
 
 #include "begin_code.h"
-/* Set up for C function definitions, even when using C++ */
+/* Set m_Up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,8 +138,8 @@ extern "C" {
  * The variable can be set to the following values:
  *   "0"       - Back button will be handled as usual for system. (default)
  *   "1"       - Back button will be trapped, allowing you to handle the key press
- *               manually.  (This will also let right mouse click work on systems
- *               where the right mouse button functions as back.)
+ *               manually.  (This will also let m_Right mouse click work on systems
+ *               where the m_Right mouse button functions as back.)
  *
  * The value of this hint is used at runtime, so it can be changed at any time.
  */
@@ -210,7 +210,7 @@ extern "C" {
  *  \brief Specify an application name for an audio device.
  *
  * Some audio backends (such as PulseAudio) allow you to describe your audio
- * stream. Among other things, this description might show up in a system
+ * stream. Among other things, this description might show m_Up in a system
  * control panel that lets the user adjust the volume on specific audio
  * streams instead of using one giant master volume slider.
  *
@@ -231,7 +231,7 @@ extern "C" {
  *  \brief Specify an application name for an audio device.
  *
  * Some audio backends (such as PulseAudio) allow you to describe your audio
- * stream. Among other things, this description might show up in a system
+ * stream. Among other things, this description might show m_Up in a system
  * control panel that lets the user adjust the volume on specific audio
  * streams instead of using one giant master volume slider.
  *
@@ -252,7 +252,7 @@ extern "C" {
  *  \brief Specify an application role for an audio device.
  *
  * Some audio backends (such as Pipewire) allow you to describe the role of
- * your audio stream. Among other things, this description might show up in
+ * your audio stream. Among other things, this description might show m_Up in
  * a system control panel or software for displaying and manipulating media
  * playback/capture graphs.
  *
@@ -787,8 +787,8 @@ extern "C" {
   *  \brief  A variable controlling whether Nintendo Switch Joy-Con controllers will be combined into a single Pro-like controller when using the HIDAPI driver
   *
   *  This variable can be set to the following values:
-  *    "0"       - Left and right Joy-Con controllers will not be combined and each will be a mini-gamepad
-  *    "1"       - Left and right Joy-Con controllers will be combined into a single controller (the default)
+  *    "0"       - Left and m_Right Joy-Con controllers will not be combined and each will be a mini-gamepad
+  *    "1"       - Left and m_Right Joy-Con controllers will be combined into a single controller (the default)
   */
 #define SDL_HINT_JOYSTICK_HIDAPI_COMBINE_JOY_CONS "SDL_JOYSTICK_HIDAPI_COMBINE_JOY_CONS"
 
@@ -796,8 +796,8 @@ extern "C" {
   *  \brief  A variable controlling whether Nintendo Switch Joy-Con controllers will be in vertical mode when using the HIDAPI driver
   *
   *  This variable can be set to the following values:
-  *    "0"       - Left and right Joy-Con controllers will not be in vertical mode (the default)
-  *    "1"       - Left and right Joy-Con controllers will be in vertical mode
+  *    "0"       - Left and m_Right Joy-Con controllers will not be in vertical mode (the default)
+  *    "1"       - Left and m_Right Joy-Con controllers will be in vertical mode
   *
   *  This hint must be set before calling SDL_Init(SDL_INIT_GAMECONTROLLER)
   */
@@ -1124,8 +1124,8 @@ extern "C" {
   *  \brief  A variable controlling whether the ROG Chakram mice should show up as joysticks
   *
   *  This variable can be set to the following values:
-  *    "0"       - ROG Chakram mice do not show up as joysticks (the default)
-  *    "1"       - ROG Chakram mice show up as joysticks
+  *    "0"       - ROG Chakram mice do not show m_Up as joysticks (the default)
+  *    "1"       - ROG Chakram mice show m_Up as joysticks
   */
 #define SDL_HINT_JOYSTICK_ROG_CHAKRAM "SDL_JOYSTICK_ROG_CHAKRAM"
 
@@ -1309,7 +1309,7 @@ extern "C" {
 /**
  *  \brief A variable that determines whether ctrl+click should generate a right-click event on Mac
  *
- *  If present, holding ctrl while left clicking will generate a right click
+ *  If present, holding ctrl while left clicking will generate a m_Right click
  *  event when on Mac.
  */
 #define SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK "SDL_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK"
@@ -1551,7 +1551,7 @@ extern "C" {
  *  know in which orientation the application is currently drawing its contents.
  *
  *  This does not cause the window to be rotated or resized, the application
- *  needs to take care of drawing the content in the right orientation (the
+ *  needs to take care of drawing the content in the m_Right orientation (the
  *  framebuffer is always in portrait mode).
  *
  *  This variable can be one of the following values:
@@ -1581,7 +1581,7 @@ extern "C" {
  *    "1"     - Use batching, but might cause problems if app makes its own direct OpenGL calls.
  *
  *  Up to SDL 2.0.9, the render API would draw immediately when requested. Now
- *  it batches up draw requests and sends them all to the GPU only when forced
+ *  it batches m_Up draw requests and sends them all to the GPU only when forced
  *  to (during SDL_RenderPresent, when changing render targets, by updating a
  *  texture that the batch needs, etc). This is significantly more efficient,
  *  but it can cause problems for apps that expect to render on top of the
@@ -1842,7 +1842,7 @@ extern "C" {
  *  \brief A variable that controls the timer resolution, in milliseconds.
  *
  *  The higher resolution the timer, the more frequently the CPU services
- *  timer interrupts, and the more precise delays are, but this takes up
+ *  timer interrupts, and the more precise delays are, but this takes m_Up
  *  power and CPU time.  This hint is only used on Windows.
  *
  *  See this blog post for more information:
@@ -2201,8 +2201,8 @@ extern "C" {
  *  This variable can be set to the following values:
  *
  *    "force"        - Always use the RIFF chunk size as a boundary for the chunk search
- *    "ignorezero"   - Like "force", but a zero size searches up to 4 GiB (default)
- *    "ignore"       - Ignore the RIFF chunk size and always search up to 4 GiB
+ *    "ignorezero"   - Like "force", but a zero size searches m_Up to 4 GiB (default)
+ *    "ignore"       - Ignore the RIFF chunk size and always search m_Up to 4 GiB
  *    "maximum"      - Search for chunks until the end of file (not recommended)
  */
 #define SDL_HINT_WAVE_RIFF_CHUNK_SIZE   "SDL_WAVE_RIFF_CHUNK_SIZE"
@@ -2557,7 +2557,7 @@ extern "C" {
  *  hardware. Changing this hint to "1" will expose anything SDL sees that
  *  appears to be an audio source or sink. This will add "devices" to the list
  *  that the user probably doesn't want or need, but it can be useful in
- *  scenarios where you want to hook up SDL to some sort of virtual device,
+ *  scenarios where you want to hook m_Up SDL to some sort of virtual device,
  *  etc.
  *
  *  The default value is "0".  This hint must be set before SDL_Init().
