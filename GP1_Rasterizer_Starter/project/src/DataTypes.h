@@ -9,9 +9,9 @@ namespace dae
 		Vector3 position{};
 		ColorRGB color{colors::White};
 		Vector2 uv{}; //W2
-		//Vector3 normal{}; //W4
-		//Vector3 tangent{}; //W4
-		//Vector3 viewDirection{}; //W4
+		Vector3 normal{}; //W4
+		Vector3 tangent{}; //W4
+		Vector3 viewDirection{}; //W4
 	};
 
 	struct Vertex_Out
@@ -19,9 +19,9 @@ namespace dae
 		Vector4 position{};
 		ColorRGB color{ colors::White };
 		Vector2 uv{};
-		//Vector3 normal{};
-		//Vector3 tangent{};
-		//Vector3 viewDirection{};
+		Vector3 normal{};
+		Vector3 tangent{};
+		Vector3 viewDirection{};
 	};
 
 	enum class PrimitiveTopology
@@ -30,14 +30,41 @@ namespace dae
 		TriangleStrip
 	};
 
+	//todo just make this a class man
 	struct Mesh
 	{
 		std::vector<Vertex> vertices{};
 		std::vector<uint32_t> indices{};
 		PrimitiveTopology primitiveTopology{ PrimitiveTopology::TriangleStrip };
+		Texture* pTexture{};
+		bool ShouldRotated{ false };
 
 		std::vector<Vertex_Out> vertices_out{};
 		Matrix worldMatrix{};
+
+		Matrix rotationTransform{};
+		Matrix translationTransform{};
+		Matrix scaleTransform{};
+
+		void Translate(const Vector3& translation)
+		{
+			translationTransform = Matrix::CreateTranslation(translation);
+		}
+
+		void RotateY(float yaw)
+		{
+			rotationTransform = Matrix::CreateRotationY(yaw);
+		}
+
+		void Scale(const Vector3& scale)
+		{
+			scaleTransform = Matrix::CreateScale(scale);
+		}
+
+		void UpdateTransforms()
+		{
+			worldMatrix = scaleTransform * rotationTransform * translationTransform;
+		}
 
 		void ResetVertices()
 		{

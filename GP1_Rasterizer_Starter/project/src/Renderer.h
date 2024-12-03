@@ -37,13 +37,19 @@ namespace dae
 		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
 		void VertexTransformationFunction(Mesh& mesh) const;
 
+		void ToggleToDepthBuffer()
+		{
+			DepthToggle = !DepthToggle;
+		}
+
 	private:
 		void InitializeWeek2();
 		void InitializeWeek3();
+		void InitializeTukTuk();
+		void InitializeSpaceBike();
 
 		void SceneWeek1();
-		void SceneWeek2();
-		void SceneWeek3();
+		void RasterizeMesh();
 
 		void TriangleSrip(const Mesh& mesh);
 		void TriangleList(const Mesh& mesh);
@@ -66,5 +72,8 @@ namespace dae
 
 		int m_Width{};
 		int m_Height{};
+
+		//toggles
+		bool DepthToggle{false};
 	};
 }

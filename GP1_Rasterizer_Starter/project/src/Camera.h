@@ -24,8 +24,8 @@ namespace dae
 		float m_Fov{ tanf((M_FovAngle * TO_RADIANS) / 2.f) };
 		float m_AspectRatio{};
 
-		float m_NearClippingPlane = 2.f;
-		float m_FarClippingPlane = 200.f;
+		float m_NearClippingPlane = 1.f;
+		float m_FarClippingPlane = 1000.f;
 
 		Vector3 m_Forward{Vector3::UnitZ};
 		Vector3 m_Up{Vector3::UnitY};

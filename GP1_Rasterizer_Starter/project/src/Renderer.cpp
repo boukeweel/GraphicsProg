@@ -29,7 +29,9 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	
 
 	//InitializeWeek2();
-	InitializeWeek3();
+	//InitializeWeek3();
+	//InitializeTukTuk();
+	InitializeSpaceBike();
 }
 
 void Renderer::InitializeWeek2()
@@ -85,23 +87,61 @@ void Renderer::InitializeWeek3()
 				6,3,7,4,8,5
 			},
 			PrimitiveTopology::TriangleStrip,
+			Texture::LoadFromFile("resources/uv_grid_2.png")
 		}
 	);
-
-	m_pTexture = Texture::LoadFromFile("resources/uv_grid_2.png");
 }
+
+void Renderer::InitializeTukTuk()
+{
+	m_Camera.Initialize(60.f, { .0f,5.0f,-30.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
+
+	Mesh tuktuk{};
+	Utils::ParseOBJ("resources/tuktuk.obj", tuktuk.vertices, tuktuk.indices);
+	tuktuk.pTexture = Texture::LoadFromFile("resources/tuktuk.png");
+	tuktuk.primitiveTopology = PrimitiveTopology::TriangleList;
+	tuktuk.ShouldRotated = true;
+
+	m_Meshes.emplace_back(tuktuk);
+}
+void Renderer::InitializeSpaceBike()
+{
+	m_Camera.Initialize(60.f, { .0f,5.0f,-30.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
+
+	Mesh SpaceBike{};
+	Utils::ParseOBJ("resources/vehicle.obj", SpaceBike.vertices, SpaceBike.indices);
+	SpaceBike.pTexture = Texture::LoadFromFile("resources/vehicle_diffuse.png");
+	SpaceBike.primitiveTopology = PrimitiveTopology::TriangleList;
+	SpaceBike.ShouldRotated = true;
+
+	m_Meshes.emplace_back(SpaceBike);
+}
+
 
 Renderer::~Renderer()
 {
 	delete[] m_pDepthBufferPixels;
-	delete m_pTexture;
-	m_pTexture = nullptr;
+	for (Mesh& mesh : m_Meshes)
+	{
+		delete mesh.pTexture;
+		mesh.pTexture = nullptr;
+	}
 }
-
 
 void Renderer::Update(Timer* pTimer)
 {
 	m_Camera.Update(pTimer);
+
+	const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
+
+	for (Mesh& mesh : m_Meshes)
+	{
+		if (mesh.ShouldRotated)
+		{
+			m_Meshes[0].RotateY(yawAngle);
+			m_Meshes[0].UpdateTransforms();
+		}
+	}
 }
 
 void Renderer::Render()
@@ -114,8 +154,7 @@ void Renderer::Render()
 	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
 
 	//SceneWeek1();
-	//SceneWeek2();
-	SceneWeek3();
+	RasterizeMesh();
 
 	//@END
 	//Update SDL Surface
@@ -269,7 +308,7 @@ void Renderer::SceneWeek1()
 		}
 	}
 }
-void Renderer::SceneWeek2()
+void Renderer::RasterizeMesh()
 {
 	for (Mesh& mesh : m_Meshes)
 	{
@@ -285,23 +324,6 @@ void Renderer::SceneWeek2()
 		}
 	}
 }
-void Renderer::SceneWeek3()
-{
-	for (Mesh& mesh : m_Meshes)
-	{
-		VertexTransformationFunction(mesh);
-
-		if (mesh.primitiveTopology == PrimitiveTopology::TriangleStrip)
-		{
-			TriangleSrip(mesh);
-		}
-		else
-		{
-			TriangleList(mesh);
-		}
-	}
-}
-
 
 void Renderer::TriangleSrip(const Mesh& mesh)
 {
@@ -387,35 +409,43 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 				//get the index where in screen this pixel is
 				const int bufferIndex = px + py * m_Width;
 
-				if(nonlinearDepth < 0 || nonlinearDepth > 1)
+				if(nonlinearDepth <= 0 || nonlinearDepth >= 1)
 					continue;
 
 				if (nonlinearDepth < m_pDepthBufferPixels[bufferIndex])
 				{
 					m_pDepthBufferPixels[bufferIndex] = nonlinearDepth;
 
-					const Vector2 uv0 = mesh.vertices_out[v0].uv;
-					const Vector2 uv1 = mesh.vertices_out[v1].uv;
-					const Vector2 uv2 = mesh.vertices_out[v2].uv;
+					ColorRGB finalColor;
+					if(DepthToggle)
+					{
+						finalColor = ColorRGB{ 1,1,1 } * nonlinearDepth;
+					}
+					else
+					{
+						const Vector2 uv0 = mesh.vertices_out[v0].uv;
+						const Vector2 uv1 = mesh.vertices_out[v1].uv;
+						const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-					const float linearDepth = 1.0f / (
-						weights.x / w0 +
-						weights.y / w1 +
-						weights.z / w2);
+						const float linearDepth = 1.0f / (
+							weights.x / w0 +
+							weights.y / w1 +
+							weights.z / w2);
 
-					const Vector2 interpolatedUV =
-						(uv0 / w0 * weights.x
-						+ uv1 / w1 * weights.y
-						+ uv2 / w2 * weights.z) * linearDepth;
+						const Vector2 interpolatedUV = linearDepth * 
+							(uv0 / w0 * weights.x +
+							uv1 / w1 * weights.y +
+							uv2 / w2 * weights.z);
 
-					const ColorRGB color{ m_pTexture->Sample(interpolatedUV) };
+						finalColor = mesh.pTexture->Sample(interpolatedUV);
+					}
 
 					// Map color to buffer
 					m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-						static_cast<uint8_t>(color.r * 255),
-						static_cast<uint8_t>(color.g * 255),
-						static_cast<uint8_t>(color.b * 255));
-				};
+						static_cast<uint8_t>(finalColor.r * 255),
+						static_cast<uint8_t>(finalColor.g * 255),
+						static_cast<uint8_t>(finalColor.b * 255));
+				}
 			}
 		}
 	}
