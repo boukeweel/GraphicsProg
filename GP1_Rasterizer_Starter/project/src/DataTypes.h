@@ -1,5 +1,6 @@
 #pragma once
 #include "Maths.h"
+#include "Texture.h"
 #include "vector"
 
 namespace dae
@@ -30,14 +31,24 @@ namespace dae
 		TriangleStrip
 	};
 
+	struct Material
+	{
+		Texture* pDiffuse;
+		Texture* pNormal;
+		Texture* pSpecular;
+		Texture* pGloss;
+
+		ColorRGB m_DiffuseColor{ colors::White };
+		float m_DiffuseReflectance{ 7.f };
+	};
+
 	//todo just make this a class man
 	struct Mesh
 	{
 		std::vector<Vertex> vertices{};
 		std::vector<uint32_t> indices{};
 		PrimitiveTopology primitiveTopology{ PrimitiveTopology::TriangleStrip };
-		Texture* pTexture{};
-		bool ShouldRotated{ false };
+		Material material{};
 
 		std::vector<Vertex_Out> vertices_out{};
 		Matrix worldMatrix{};
@@ -76,7 +87,10 @@ namespace dae
 				Vertex_Out vertex_out{
 					{ vertices[i].position.x,vertices[i].position.y ,vertices[i].position.z ,1.f },
 					vertices[i].color,
-					vertices[i].uv
+					vertices[i].uv,
+					vertices[i].normal,
+					vertices[i].tangent,
+					vertices[i].viewDirection
 				};
 				vertices_out.emplace_back(vertex_out);
 			}

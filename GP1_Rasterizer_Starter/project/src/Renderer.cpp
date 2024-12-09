@@ -98,22 +98,27 @@ void Renderer::InitializeTukTuk()
 
 	Mesh tuktuk{};
 	Utils::ParseOBJ("resources/tuktuk.obj", tuktuk.vertices, tuktuk.indices);
-	tuktuk.pTexture = Texture::LoadFromFile("resources/tuktuk.png");
+	tuktuk.material.pDiffuse = Texture::LoadFromFile("resources/tuktuk.png");
 	tuktuk.primitiveTopology = PrimitiveTopology::TriangleList;
-	tuktuk.ShouldRotated = true;
-
+	m_ShouldRotated = true;
 	m_Meshes.emplace_back(tuktuk);
 }
 void Renderer::InitializeSpaceBike()
 {
-	m_Camera.Initialize(60.f, { .0f,5.0f,-30.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
+	m_Camera.Initialize(60.f, { .0f,5.0f,-10.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
 
 	Mesh SpaceBike{};
 	Utils::ParseOBJ("resources/vehicle.obj", SpaceBike.vertices, SpaceBike.indices);
-	SpaceBike.pTexture = Texture::LoadFromFile("resources/vehicle_diffuse.png");
-	SpaceBike.primitiveTopology = PrimitiveTopology::TriangleList;
-	SpaceBike.ShouldRotated = true;
 
+	SpaceBike.material.pDiffuse = Texture::LoadFromFile("resources/vehicle_diffuse.png");
+	SpaceBike.material.pNormal = Texture::LoadFromFile("resources/vehicle_normal.png");
+	SpaceBike.material.pSpecular = Texture::LoadFromFile("resources/vehicle_specular.png");
+	SpaceBike.material.pGloss = Texture::LoadFromFile("resources/vehicle_gloss.png");
+
+	SpaceBike.primitiveTopology = PrimitiveTopology::TriangleList;
+	SpaceBike.Translate({ 0,0,45 });
+
+	m_ShouldRotated = true;
 	m_Meshes.emplace_back(SpaceBike);
 }
 
@@ -123,8 +128,15 @@ Renderer::~Renderer()
 	delete[] m_pDepthBufferPixels;
 	for (Mesh& mesh : m_Meshes)
 	{
-		delete mesh.pTexture;
-		mesh.pTexture = nullptr;
+		delete mesh.material.pDiffuse;
+		delete mesh.material.pNormal;
+		delete mesh.material.pSpecular;
+		delete mesh.material.pGloss;
+
+		mesh.material.pDiffuse = nullptr;
+		mesh.material.pNormal = nullptr;
+		mesh.material.pSpecular = nullptr;
+		mesh.material.pGloss = nullptr;
 	}
 }
 
@@ -132,14 +144,13 @@ void Renderer::Update(Timer* pTimer)
 {
 	m_Camera.Update(pTimer);
 
-	const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
-
-	for (Mesh& mesh : m_Meshes)
+	if(m_ShouldRotated)
 	{
-		if (mesh.ShouldRotated)
+		const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
+		for (Mesh& mesh : m_Meshes)
 		{
-			m_Meshes[0].RotateY(yawAngle);
-			m_Meshes[0].UpdateTransforms();
+			mesh.RotateY(yawAngle);
+			mesh.UpdateTransforms();
 		}
 	}
 }
@@ -200,6 +211,13 @@ void Renderer::VertexTransformationFunction(Mesh& mesh) const
 	for (Vertex_Out& vertex : mesh.vertices_out)
 	{
 		vertex.position =  WorldViewProjectionMatrix.TransformPoint(vertex.position);
+
+		//transform the normal and tagents so its in the correct position
+		vertex.normal = WorldViewProjectionMatrix.TransformVector(vertex.normal).Normalized();
+		vertex.tangent = WorldViewProjectionMatrix.TransformVector(vertex.tangent).Normalized();
+
+		//get the viewDirection
+		vertex.viewDirection = (vertex.position.GetXYZ() - m_Camera.m_Origin).Normalized();
 
 		vertex.position.x /= vertex.position.w;
 		vertex.position.y /= vertex.position.w;
@@ -407,49 +425,137 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 					weights.y / (1 / mesh.vertices_out[v1].position.z) +
 					weights.z / (1 /mesh.vertices_out[v2].position.z));
 				//get the index where in screen this pixel is
-				const int bufferIndex = px + py * m_Width;
+				const int pixelIndex = px + py * m_Width;
 
 				if(nonlinearDepth <= 0 || nonlinearDepth >= 1)
 					continue;
 
-				if (nonlinearDepth < m_pDepthBufferPixels[bufferIndex])
+				if (nonlinearDepth < m_pDepthBufferPixels[pixelIndex])
 				{
-					m_pDepthBufferPixels[bufferIndex] = nonlinearDepth;
+					m_pDepthBufferPixels[pixelIndex] = nonlinearDepth;
 
-					ColorRGB finalColor;
-					if(DepthToggle)
-					{
-						finalColor = ColorRGB{ 1,1,1 } * nonlinearDepth;
-					}
-					else
-					{
-						const Vector2 uv0 = mesh.vertices_out[v0].uv;
-						const Vector2 uv1 = mesh.vertices_out[v1].uv;
-						const Vector2 uv2 = mesh.vertices_out[v2].uv;
+					const ColorRGB InterpolatedColor = 
+						mesh.vertices_out[v0].color * weights.x + 
+						mesh.vertices_out[v1].color * weights.y + 
+						mesh.vertices_out[v2].color * weights.z;
 
-						const float linearDepth = 1.0f / (
-							weights.x / w0 +
-							weights.y / w1 +
-							weights.z / w2);
+					const Vector2 uv0 = mesh.vertices_out[v0].uv;
+					const Vector2 uv1 = mesh.vertices_out[v1].uv;
+					const Vector2 uv2 = mesh.vertices_out[v2].uv;
 
-						const Vector2 interpolatedUV = linearDepth * 
-							(uv0 / w0 * weights.x +
-							uv1 / w1 * weights.y +
-							uv2 / w2 * weights.z);
+					const float linearDepth = 1.0f / (
+						weights.x / w0 +
+						weights.y / w1 +
+						weights.z / w2);
 
-						finalColor = mesh.pTexture->Sample(interpolatedUV);
-					}
+					const Vector2 interpolatedUV = linearDepth * 
+						(uv0 / w0 * weights.x +
+						uv1 / w1 * weights.y +
+						uv2 / w2 * weights.z);
 
-					// Map color to buffer
-					m_pBackBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-						static_cast<uint8_t>(finalColor.r * 255),
-						static_cast<uint8_t>(finalColor.g * 255),
-						static_cast<uint8_t>(finalColor.b * 255));
+					const Vector3 InterpolatedNormal = linearDepth *
+						(mesh.vertices_out[v0].normal / w0 * weights.x +
+						mesh.vertices_out[v1].normal / w1 * weights.y +
+						mesh.vertices_out[v2].normal / w2 * weights.z);
+
+					const Vector3 InterpolatedTangent = linearDepth *
+						(mesh.vertices_out[v0].tangent / w0 * weights.x +
+						mesh.vertices_out[v1].tangent / w1 * weights.y +
+						mesh.vertices_out[v2].tangent / w2 * weights.z);
+					
+
+					PixelShading(&mesh.material, pixelIndex, interpolatedUV,InterpolatedNormal,InterpolatedTangent);
 				}
 			}
 		}
 	}
 }
+
+void Renderer::PixelShading(const Material* pMaterial, const int pixelIndex, const Vector2 uv, const Vector3 interpolatedNormal, const Vector3 interpolatedTangent) const
+{
+	Vector3 SampeldNormal{ interpolatedNormal };
+	ColorRGB sampleDDiffuseColor{ pMaterial->m_DiffuseColor };
+
+	if (pMaterial->pDiffuse)
+		sampleDDiffuseColor = pMaterial->pDiffuse->Sample(uv);
+
+	if(pMaterial->pNormal && m_NormalMapActive)
+	{
+		Vector3 binormal = Vector3::Cross(interpolatedNormal, interpolatedTangent);
+
+		Matrix tangentSpaceAxis{
+			interpolatedTangent,
+			binormal,
+			interpolatedNormal,
+			Vector3::Zero
+		};
+
+		ColorRGB sampleNormalColor = pMaterial->pNormal->Sample(uv);
+		Vector3 sampledNormalMapped{
+			2.f * sampleNormalColor.r - 1.f,
+			2.f * sampleNormalColor.g - 1.f,
+			2.f * sampleNormalColor.b - 1.f
+		};
+
+		SampeldNormal = tangentSpaceAxis.TransformPoint(sampledNormalMapped);
+	}
+
+	ColorRGB finalColor{};
+
+	ColorRGB LambertDiffuse = sampleDDiffuseColor * pMaterial->m_DiffuseReflectance / PI;
+
+	const float observedArea = std::max(0.0f, Vector3::Dot(SampeldNormal, -m_LightDirection));
+
+	switch (m_CurrentLightingMode)
+	{
+	case LightingMode::Diffuse:
+		finalColor = LambertDiffuse;
+			break;
+	case LightingMode::ObservedArea:
+		finalColor += colors::White * observedArea;
+		break;
+	case LightingMode::Specular:
+		break;
+	case LightingMode::Combined:
+		finalColor = LambertDiffuse * observedArea;
+		break;
+	}
+
+	
+
+	finalColor.MaxToOne();
+
+	m_pBackBufferPixels[pixelIndex] = SDL_MapRGB(m_pBackBuffer->format,
+		static_cast<uint8_t>(finalColor.r * 255),
+		static_cast<uint8_t>(finalColor.g * 255),
+		static_cast<uint8_t>(finalColor.b * 255));
+}
+
+void Renderer::CycleLightingMode()
+{
+	std::cout << std::endl;
+	switch (m_CurrentLightingMode)
+	{
+	case LightingMode::ObservedArea:
+		m_CurrentLightingMode = LightingMode::Diffuse;
+		std::cout << "Current Lighting mode Diffuse" << std::endl;
+		break;
+	case LightingMode::Diffuse:
+		m_CurrentLightingMode = LightingMode::Specular;
+		std::cout << "Current Lighting mode Specular" << std::endl;
+		break;
+	case LightingMode::Specular:
+		m_CurrentLightingMode = LightingMode::Combined;
+		std::cout << "Current Lighting mode Combined" << std::endl;
+		break;
+	case LightingMode::Combined:
+		m_CurrentLightingMode = LightingMode::ObservedArea;
+		std::cout << "Current Lighting mode ObservedArea" << std::endl;
+		break;
+	}
+	std::cout << std::endl;
+}
+
 
 
 bool Renderer::SaveBufferToImage() const
