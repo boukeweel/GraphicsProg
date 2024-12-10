@@ -434,11 +434,6 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 				{
 					m_pDepthBufferPixels[pixelIndex] = nonlinearDepth;
 
-					const ColorRGB InterpolatedColor = 
-						mesh.vertices_out[v0].color * weights.x + 
-						mesh.vertices_out[v1].color * weights.y + 
-						mesh.vertices_out[v2].color * weights.z;
-
 					const Vector2 uv0 = mesh.vertices_out[v0].uv;
 					const Vector2 uv1 = mesh.vertices_out[v1].uv;
 					const Vector2 uv2 = mesh.vertices_out[v2].uv;
@@ -462,22 +457,41 @@ void Renderer::Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, cons
 						(mesh.vertices_out[v0].tangent / w0 * weights.x +
 						mesh.vertices_out[v1].tangent / w1 * weights.y +
 						mesh.vertices_out[v2].tangent / w2 * weights.z);
+
+					const Vector3 InterpolatedViewDirection = linearDepth *
+						(mesh.vertices_out[v0].viewDirection / w0 * weights.x +
+						mesh.vertices_out[v1].viewDirection / w1 * weights.y +
+						mesh.vertices_out[v2].viewDirection / w2 * weights.z);
+
+					const ColorRGB InterpolatedColor =
+						mesh.vertices_out[v0].color * weights.x +
+						mesh.vertices_out[v1].color * weights.y +
+						mesh.vertices_out[v2].color * weights.z;
 					
 
-					PixelShading(&mesh.material, pixelIndex, interpolatedUV,InterpolatedNormal,InterpolatedTangent);
+					PixelShading(&mesh.material, pixelIndex, interpolatedUV,InterpolatedNormal,InterpolatedTangent,InterpolatedViewDirection);
 				}
 			}
 		}
 	}
 }
 
-void Renderer::PixelShading(const Material* pMaterial, const int pixelIndex, const Vector2 uv, const Vector3 interpolatedNormal, const Vector3 interpolatedTangent) const
+void Renderer::PixelShading(const Material* pMaterial, const int pixelIndex, const Vector2 uv, const Vector3 interpolatedNormal,
+	const Vector3 interpolatedTangent, const Vector3 interpolatedViewDirection) const
 {
 	Vector3 SampeldNormal{ interpolatedNormal };
 	ColorRGB sampleDDiffuseColor{ pMaterial->m_DiffuseColor };
+	float SpecularColor{0.5f};
+	float PhongExponent{25.f};
 
 	if (pMaterial->pDiffuse)
 		sampleDDiffuseColor = pMaterial->pDiffuse->Sample(uv);
+
+	if (pMaterial->pSpecular)
+		SpecularColor *= pMaterial->pSpecular->Sample(uv).r; //only one is needed can be r,g or b
+
+	if (pMaterial->pGloss)
+		PhongExponent *= pMaterial->pGloss->Sample(uv).r; //only one is needed can be r,g or b
 
 	if(pMaterial->pNormal && m_NormalMapActive)
 	{
@@ -500,12 +514,16 @@ void Renderer::PixelShading(const Material* pMaterial, const int pixelIndex, con
 		SampeldNormal = tangentSpaceAxis.TransformPoint(sampledNormalMapped);
 	}
 
-	ColorRGB finalColor{};
-
 	ColorRGB LambertDiffuse = sampleDDiffuseColor * pMaterial->m_DiffuseReflectance / PI;
 
 	const float observedArea = std::max(0.0f, Vector3::Dot(SampeldNormal, -m_LightDirection));
 
+	//phong
+	Vector3 reflect{ Vector3::Reflect(m_LightDirection, SampeldNormal) };
+	float cosAlpa{std::max(0.f,Vector3::Dot(reflect,interpolatedViewDirection))};
+	ColorRGB PhongColor = colors::White * SpecularColor * pow(cosAlpa, PhongExponent);
+
+	ColorRGB finalColor{};
 	switch (m_CurrentLightingMode)
 	{
 	case LightingMode::Diffuse:
@@ -515,13 +533,12 @@ void Renderer::PixelShading(const Material* pMaterial, const int pixelIndex, con
 		finalColor += colors::White * observedArea;
 		break;
 	case LightingMode::Specular:
+		finalColor = colors::White * PhongColor;
 		break;
 	case LightingMode::Combined:
-		finalColor = LambertDiffuse * observedArea;
+		finalColor = PhongColor + LambertDiffuse * observedArea;
 		break;
 	}
-
-	
 
 	finalColor.MaxToOne();
 

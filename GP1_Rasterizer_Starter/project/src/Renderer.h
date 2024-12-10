@@ -83,7 +83,7 @@ namespace dae
 		void Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2);
 		//void PixelShading(const Vertex_Out& v);
 
-		void PixelShading(const Material* pMaterial, const int pixelIndex,const Vector2 uv, const Vector3 interpolatedNormal, const Vector3 interpolatedTangent) const;
+		void PixelShading(const Material* pMaterial, const int pixelIndex,const Vector2 uv, const Vector3 interpolatedNormal, const Vector3 interpolatedTangent, const Vector3 interpolatedViewDirection) const;
 
 		SDL_Window* m_pWindow{};
 
