@@ -9,10 +9,10 @@ namespace dae
 	{
 		Vector3 position{};
 		ColorRGB color{colors::White};
-		Vector2 uv{}; //W2
-		Vector3 normal{}; //W4
-		Vector3 tangent{}; //W4
-		Vector3 viewDirection{}; //W4
+		Vector2 uv{};
+		Vector3 normal{};
+		Vector3 tangent{};
+		Vector3 viewDirection{};
 	};
 
 	struct Vertex_Out
@@ -33,16 +33,15 @@ namespace dae
 
 	struct Material
 	{
-		Texture* pDiffuse;
-		Texture* pNormal;
-		Texture* pSpecular;
-		Texture* pGloss;
+		Texture* pDiffuse{ nullptr };
+		Texture* pNormal{nullptr};
+		Texture* pSpecular{ nullptr };
+		Texture* pGloss{ nullptr };
 
-		ColorRGB m_DiffuseColor{ colors::White };
-		float m_DiffuseReflectance{ 7.f };
+		ColorRGB DiffuseColor{ colors::White };
+		float DiffuseReflectance{ 7.f };
 	};
 
-	//todo just make this a class man
 	struct Mesh
 	{
 		std::vector<Vertex> vertices{};

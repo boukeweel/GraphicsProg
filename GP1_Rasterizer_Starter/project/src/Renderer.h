@@ -36,18 +36,14 @@ namespace dae
 
 		bool SaveBufferToImage() const;
 
-		void VertexTransformationFunction(const std::vector<Vertex>& vertices_in, std::vector<Vertex>& vertices_out) const;
-		void VertexTransformationFunction(Mesh& mesh) const;
-
 		void ToggleToDepthBuffer()
 		{
-			DepthToggle = !DepthToggle;
-			if (DepthToggle)
+			m_DepthToggle = !m_DepthToggle;
+			if (m_DepthToggle)
 				std::cout << "Depth On\n";
 			else
 				std::cout << "Depth Off\n";
 		}
-
 		void ToggleRotation()
 		{
 			m_ShouldRotated = !m_ShouldRotated;
@@ -56,7 +52,6 @@ namespace dae
 			else
 				std::cout << "Stopped Rotating\n";
 		}
-
 		void ToggleNormalMapping()
 		{
 			m_NormalMapActive = !m_NormalMapActive;
@@ -65,25 +60,22 @@ namespace dae
 			else
 				std::cout << "Normals map off\n";
 		}
-
 		void CycleLightingMode();
 
 	private:
-		void InitializeWeek2();
-		void InitializeWeek3();
-		void InitializeTukTuk();
 		void InitializeSpaceBike();
 
-		void SceneWeek1();
+		void RasterizeMesh(); 
 
-		void RasterizeMesh();
+		void VertexTransformationFunction(Mesh& mesh) const;
 
-		void TriangleSrip(const Mesh& mesh);
+		void TriangleStrip(const Mesh& mesh);
 		void TriangleList(const Mesh& mesh);
-		void Rasteriz(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2);
-		//void PixelShading(const Vertex_Out& v);
+		void Rasterize(const Mesh& mesh, const size_t v0, const size_t v1, const size_t v2);
 
-		void PixelShading(const Material* pMaterial, const int pixelIndex,const Vector2 uv, const Vector3 interpolatedNormal, const Vector3 interpolatedTangent, const Vector3 interpolatedViewDirection) const;
+		void PixelShading(const Material* pMaterial, const int pixelIndex, const Vertex_Out& vertex_out) const;
+
+		float Remap(float value, float fromMin, float fromMax, float toMin = 0.0f, float toMax = 1.0f);
 
 		SDL_Window* m_pWindow{};
 
@@ -97,8 +89,6 @@ namespace dae
 
 		std::vector<Mesh> m_Meshes;
 		Texture* m_pTexture;
-		bool m_ShouldRotated{true};
-		bool m_NormalMapActive{true};
 
 		Camera m_Camera{};
 
@@ -106,7 +96,12 @@ namespace dae
 		int m_Height{};
 
 		Vector3 m_LightDirection{ .577f,-.577f,.577f };
+		float m_Shininess{ 25.f };
+		float m_PhongSpecular{ 0.5f };
 
+		float m_CurrentRotation{ 0.f };
+
+		//toggles
 		enum class LightingMode
 		{
 			ObservedArea,	//Lambert cosine law
@@ -116,8 +111,8 @@ namespace dae
 		};
 
 		LightingMode m_CurrentLightingMode{ LightingMode::Combined };
-
-		//toggles
-		bool DepthToggle{false};
+		bool m_ShouldRotated{ true };
+		bool m_NormalMapActive{ true };
+		bool m_DepthToggle{false};
 	};
 }

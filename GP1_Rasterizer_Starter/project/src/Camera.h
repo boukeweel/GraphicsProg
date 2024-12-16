@@ -24,7 +24,7 @@ namespace dae
 		float m_Fov{ tanf((M_FovAngle * TO_RADIANS) / 2.f) };
 		float m_AspectRatio{};
 
-		float m_NearClippingPlane = 1.f;
+		float m_NearClippingPlane = .1f;
 		float m_FarClippingPlane = 1000.f;
 
 		Vector3 m_Forward{Vector3::UnitZ};
@@ -35,7 +35,7 @@ namespace dae
 		float m_TotalYaw{};
 
 		const float m_MoveSpeedKey{ 5.f };
-		const float m_MoveSpeedMouse{ 0.05f };
+		const float m_MoveSpeedMouse{ 0.5f };
 		const float m_RotatedSpeed{ 0.01f };
 
 		Matrix m_InvViewMatrix{};
@@ -80,16 +80,16 @@ namespace dae
 			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
 
 
-			if (pKeyboardState[SDL_SCANCODE_S])
+			if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
 				InputVector.z -= 1;
 
-			if (pKeyboardState[SDL_SCANCODE_W])
+			if (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP])
 				InputVector.z += 1;
 
-			if (pKeyboardState[SDL_SCANCODE_A])
+			if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT])
 				InputVector.x -= 1;
 
-			if (pKeyboardState[SDL_SCANCODE_D])
+			if (pKeyboardState[SDL_SCANCODE_D] || pKeyboardState[SDL_SCANCODE_RIGHT])
 				InputVector.x += 1;
 
 			if (pKeyboardState[SDL_SCANCODE_Q])
@@ -119,7 +119,6 @@ namespace dae
 				m_TotalPitch -= mouseY * m_RotatedSpeed;
 				m_TotalYaw -= mouseX * m_RotatedSpeed;
 			}
-
 
 			const Matrix pitchYawRotation
 			{
