@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Renderer.h"
 
+//got this from GBT it pretty smart tbh
+#define SafeRelease(p) { if (p) { p->Release(); p = nullptr; } }
+
 namespace dae {
 
 	Renderer::Renderer(SDL_Window* pWindow) :
@@ -24,7 +27,20 @@ namespace dae {
 
 	Renderer::~Renderer()
 	{
-		
+		if(m_pDeviceContext)
+		{
+			m_pDeviceContext->ClearState();
+			m_pDeviceContext->Flush();
+			m_pDeviceContext->Release();
+		}
+
+		SafeRelease(m_pDepthStencilView)
+		SafeRelease(m_pDepthStencilBuffer)
+		SafeRelease(m_pRenderTargetView)
+		SafeRelease(m_pRenderTargetBuffer)
+		SafeRelease(m_pSwapChain)
+		SafeRelease(m_pDeviceContext)
+		SafeRelease(m_pDevice)
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -38,11 +54,21 @@ namespace dae {
 		if (!m_IsInitialized)
 			return;
 
+		//Clear RTV & DSV
+		constexpr float color[4] = { 0.f,0.f,0.3f,1.f };
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
+		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
+
+		//Invoke Draw Calls
+
+		//Present backbuffer(Swap)
+		m_pSwapChain->Present(0, 0);
 	}
 
 	HRESULT Renderer::InitializeDirectX()
 	{
 
+		//Create device and deviceContext
 		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 		uint32_t createDiviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -55,6 +81,92 @@ namespace dae {
 		if (FAILED(result))
 			return result;
 
-		return S_FALSE;
+		//Create DXGI Factory
+		IDXGIFactory1* pDxgiFactory{};
+		result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
+		if (FAILED(result))
+			return result;
+
+		//Create SwapChain
+		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
+		swapChainDesc.BufferDesc.Width = m_Width;
+		swapChainDesc.BufferDesc.Height = m_Height;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
+		swapChainDesc.BufferDesc.RefreshRate.Denominator = 60;
+		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 1;
+		swapChainDesc.Windowed = true;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		swapChainDesc.Flags = 0;
+
+		//get the handle from the sdl backbuffer
+		SDL_SysWMinfo sysWMInfo{};
+		SDL_GetVersion(&sysWMInfo.version);
+		SDL_GetWindowWMInfo(m_pWindow, &sysWMInfo);
+		swapChainDesc.OutputWindow = sysWMInfo.info.win.window;
+
+		result = pDxgiFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain);
+		if (FAILED(result))
+			return result;
+
+		D3D11_TEXTURE2D_DESC depthStencilDesc{};
+		depthStencilDesc.Width = m_Width;
+		depthStencilDesc.Height = m_Height;
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
+		depthStencilViewDesc.Format = depthStencilDesc.Format;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+		result = m_pDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
+		if (FAILED(result))
+			return result;
+
+		result = m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &depthStencilViewDesc, &m_pDepthStencilView);
+		if (FAILED(result))
+			return result;
+
+		//create RenderTarget & RenderTargetView
+
+		//resource
+		result = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pRenderTargetBuffer));
+		if (FAILED(result))
+			return result;
+
+		//view
+		result = m_pDevice->CreateRenderTargetView(m_pRenderTargetBuffer, nullptr, &m_pRenderTargetView);
+		if (FAILED(result))
+			return result;
+
+		//bind RTV & DSB to output merger stage
+		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
+		D3D11_VIEWPORT viewport{};
+		viewport.Width = static_cast<float>(m_Width);
+		viewport.Height = static_cast<float>(m_Height);
+		viewport.TopLeftX = 0.f;
+		viewport.TopLeftY = 0.f;
+		viewport.MinDepth = 0.f;
+		viewport.MaxDepth = 1.f;
+		m_pDeviceContext->RSSetViewports(1, &viewport);
+
+		//Realising The Factory after his long work day
+		SafeRelease(pDxgiFactory)
+
+		return result;
 	}
 }
