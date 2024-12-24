@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 
-//got this from GBT it pretty smart tbh
-#define SafeRelease(p) { if (p) { p->Release(); p = nullptr; } }
+
 
 namespace dae {
 
@@ -23,6 +22,16 @@ namespace dae {
 		{
 			std::cout << "DirectX initialization failed!\n";
 		}
+
+		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
+
+		m_pMesh = new Mesh{
+		m_pDevice,m_pEffect,
+		{{{.0f,.5f,.5f},{1.f,0.f,0.f}},
+					{{.5f,-.5f,.5f},{0.f,0.f,1.f}},
+					{ {-.5f,-.5f,.5f} ,{0.f,1.f,0.f}}},
+		{0,1,2} };
+		
 	}
 
 	Renderer::~Renderer()
@@ -41,6 +50,12 @@ namespace dae {
 		SafeRelease(m_pSwapChain)
 		SafeRelease(m_pDeviceContext)
 		SafeRelease(m_pDevice)
+
+		delete m_pEffect;
+		m_pEffect = nullptr;
+
+		delete m_pMesh;
+		m_pMesh = nullptr;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -60,6 +75,8 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
 		//Invoke Draw Calls
+		m_pMesh->Render(m_pDeviceContext,m_Matrix);
+
 
 		//Present backbuffer(Swap)
 		m_pSwapChain->Present(0, 0);

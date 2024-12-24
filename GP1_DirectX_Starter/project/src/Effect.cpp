@@ -20,7 +20,6 @@ namespace dae
 	Effect::~Effect()
 	{
 		SafeRelease(m_pEffect)
-		SafeRelease(m_pTechnique)
 	}
 
 	ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetfile)

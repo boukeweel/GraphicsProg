@@ -3,7 +3,7 @@
 //---------------------------------------------------
 struct VS_INPUT
 {
-    float3 Position : POSITIONT;
+    float3 Position : POSITION;
     float3 Color : COLOR;
 };
 

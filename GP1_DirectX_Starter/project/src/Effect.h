@@ -10,12 +10,12 @@ namespace dae {
 
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 
-		const ID3DX11Effect* GetEffect()
+		ID3DX11Effect* GetEffect()
 		{
 			return m_pEffect;
 		}
 
-		const ID3DX11EffectTechnique* GetTechnique()
+		ID3DX11EffectTechnique* GetTechnique()
 		{
 			return m_pTechnique;
 		}

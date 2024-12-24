@@ -1,4 +1,5 @@
 #pragma once
+#include "Mesh.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -39,6 +40,15 @@ namespace dae
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
+		Mesh* m_pMesh{};
+		Effect* m_pEffect{};
+
+		Matrix m_Matrix{
+			{1.0f,0.0f,0.0f,0.0f},
+			{0.0f,1.0f,0.0f,0.0f},
+			{0.0f,0.0f,1.0f,0.0f},
+			{0.0f,0.0f,5.0f,1.0f}
+		};
 
 
 	};

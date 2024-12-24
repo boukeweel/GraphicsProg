@@ -22,3 +22,7 @@
 // Framework Headers
 #include "Timer.h"
 #include "Math.h"
+
+//Macros
+//got this from GBT it pretty smart tbh
+#define SafeRelease(p) { if (p) { p->Release(); p = nullptr; } }

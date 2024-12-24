@@ -4,19 +4,9 @@
 
 namespace dae {
 
-	struct VS_INPUT
+	struct Vertex
 	{
 		Vector3 Position{};
-		ColorRGB Color{ colors::White };
-		//Vector2 uv{};
-		//Vector3 normal{};
-		//Vector3 tangent{};
-		//Vector3 viewDirection{};
-	};
-
-	struct VS_OUTPUT
-	{
-		Vector4 Position{};
 		ColorRGB Color{ colors::White };
 		//Vector2 uv{};
 		//Vector3 normal{};
@@ -33,16 +23,34 @@ namespace dae {
 	class Mesh
 	{
 	public:
-		Mesh(ID3D11Device* Device,std::vector<VS_INPUT> vertices,std::vector<uint32_t> indices);
+		Mesh(ID3D11Device* pDevice,Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 		~Mesh();
 
+		void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const;
+
 	private:
-		ID3D11Device* m_pDevice;
+		void InitializeMesh(ID3D11Device* pDevice);
 
-		std::vector<VS_INPUT> m_Vertices{};
+		Effect* m_pEffects{nullptr};
+
+		ID3D11Buffer* m_pVertexBuffer{ nullptr };
+		ID3D11Buffer* m_pIndexBuffer{ nullptr };
+		ID3D11InputLayout* m_pInputLayout{ nullptr };
+
+		std::vector<Vertex> m_modelVertices{};
 		std::vector<uint32_t> m_Indices{};
-		primitiveTechnology m_primitiveTechnology{ primitiveTechnology::TriangleList };
+		UINT m_IndicesCount{ 0 };
 
-		std::vector<VS_OUTPUT> m_vertices_out{};
+		Matrix	m_WorldMatrix
+		{
+			{1.0f,0.0f,0.0f,0.0f},
+			{0.0f,1.0f,0.0f,0.0f},
+			{0.0f,0.0f,1.0f,0.0f},
+			{0.0f,0.0f,0.0f,1.0f}
+		};
+
+		float m_YawRotation;
+		Vector3 m_Scale;
+		Vector3 m_Position;
 	};
 }
