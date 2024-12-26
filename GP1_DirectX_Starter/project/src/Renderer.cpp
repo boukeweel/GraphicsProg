@@ -27,11 +27,12 @@ namespace dae {
 
 		m_pMesh = new Mesh{
 		m_pDevice,m_pEffect,
-		{{{.0f,.5f,.5f},{1.f,0.f,0.f}},
-					{{.5f,-.5f,.5f},{0.f,0.f,1.f}},
-					{ {-.5f,-.5f,.5f} ,{0.f,1.f,0.f}}},
+		{{{.0f,3.f,2.f},{1.f,0.f,0.f}},
+					{{3.f,-3.f,2.f},{0.f,0.f,1.f}},
+					{ {-3.f,-3.f,2.f} ,{0.f,1.f,0.f}}},
 		{0,1,2} };
-		
+
+		m_Camara.Initialize(45.f, { .0f,.0f,-10.f }, static_cast<float>(m_Width) / static_cast<float>(m_Height));
 	}
 
 	Renderer::~Renderer()
@@ -60,7 +61,7 @@ namespace dae {
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_Camara.Update(pTimer);
 	}
 
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Camara.h"
 #include "Mesh.h"
 
 struct SDL_Window;
@@ -27,6 +28,8 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+
+		Camara m_Camara;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();
