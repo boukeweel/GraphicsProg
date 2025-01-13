@@ -1,5 +1,4 @@
 #include "Effect.h"
-#include <d3dcompiler.h>
 #include <iostream>
 #include <sstream>
 
@@ -15,6 +14,12 @@ namespace dae
 		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 		if (!m_pTechnique->IsValid())
 			std::wcout << L"Technique not Valid\n";
+
+		m_pWorldViewProjectionMatrixVar = m_pEffect->GetVariableByName("g_WorldViewProjection")->AsMatrix();
+		if (!m_pWorldViewProjectionMatrixVar->IsValid())
+			std::wcout << L"m_pWorldViewProjectionMatrixVar not valid \n";
+		
+
 	}
 
 	Effect::~Effect()
@@ -70,5 +75,12 @@ namespace dae
 		}
 
 		return pEffect;
+	}
+	void Effect::SetViewProjectionMatrix(const Matrix& viewProjectionMatrix) const
+	{
+		if(!m_pWorldViewProjectionMatrixVar->IsValid())
+			return;
+
+		m_pWorldViewProjectionMatrixVar->SetMatrix(reinterpret_cast<const float*>(&viewProjectionMatrix));
 	}
 }

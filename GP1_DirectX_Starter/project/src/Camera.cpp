@@ -30,12 +30,7 @@ namespace dae
 		const float A{ m_FarClippingPlane / (m_FarClippingPlane - m_NearClippingPlane) };
 		const float B{ -(m_FarClippingPlane * m_NearClippingPlane) / (m_FarClippingPlane - m_NearClippingPlane) };
 
-		m_ProjectionMatrix = Matrix{
-			{1.f / (m_AspectRatio * m_Fov),0,0,0},
-			{0,1.f / m_Fov,0,0},
-			{0,0,A,1},
-			{0,0,B,0}
-		};
+		m_ProjectionMatrix = Matrix::CreatePerspectiveFovLH(m_Fov, m_AspectRatio, A, B);
 	}
 
 	void Camera::CombineViewProjectionMatrix()
@@ -43,7 +38,7 @@ namespace dae
 		m_ViewProjectionMatrix = m_InvViewMatrix * m_ProjectionMatrix;
 	}
 
-	void Camera::Update(Timer* pTimer)
+	void Camera::Update(const Timer* pTimer)
 	{
 		const float deltaTime = pTimer->GetElapsed();
 

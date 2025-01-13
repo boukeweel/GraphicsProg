@@ -13,7 +13,7 @@ namespace dae
 		Camera(const Vector3& _origin, float _fovAngle, float _aspectRatio);
 
 		void Initialize(Vector3 _origin = { 0.f,0.f,0.f }, float _fovAngle = 90.f, float _aspectRatio = 0);
-		void Update(Timer* pTimer);
+		void Update(const Timer* pTimer);
 
 		[[nodiscard]] const Matrix& GetViewMatrix() const { return m_ViewMatrix; }
 		[[nodiscard]] const Matrix& GetProjectionMatrix() const { return m_ProjectionMatrix; }

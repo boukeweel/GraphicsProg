@@ -6,6 +6,8 @@ struct SDL_Surface;
 
 namespace dae
 {
+	class Camera;
+
 	class Renderer final
 	{
 	public:
@@ -42,6 +44,7 @@ namespace dae
 
 		Mesh* m_pMesh{};
 		Effect* m_pEffect{};
+		Camera* m_pCamera{};
 
 		Matrix m_Matrix{
 			{1.0f,0.0f,0.0f,0.0f},

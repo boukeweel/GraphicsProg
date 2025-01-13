@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
-
+#include "Camera.h"
 
 
 namespace dae {
@@ -31,7 +31,9 @@ namespace dae {
 					{{.5f,-.5f,.5f},{0.f,0.f,1.f}},
 					{ {-.5f,-.5f,.5f} ,{0.f,1.f,0.f}}},
 		{0,1,2} };
-		
+
+
+		m_pCamera = new Camera{ {0,0,-10.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
 
 	Renderer::~Renderer()
@@ -56,11 +58,14 @@ namespace dae {
 
 		delete m_pMesh;
 		m_pMesh = nullptr;
+
+		delete m_pCamera;
+		m_pCamera = nullptr;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_pCamera->Update(pTimer);
 	}
 
 
@@ -75,7 +80,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
 		//Invoke Draw Calls
-		m_pMesh->Render(m_pDeviceContext,m_Matrix);
+		m_pMesh->Render(m_pDeviceContext,m_pCamera->GetViewProjectionMatrix());
 
 
 		//Present backbuffer(Swap)

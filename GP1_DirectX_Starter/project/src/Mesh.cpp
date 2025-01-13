@@ -17,6 +17,8 @@ namespace dae
 
 	void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const
 	{
+		m_pEffects->SetViewProjectionMatrix(viewProjectionMatrix);
+
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		pDeviceContext->IASetInputLayout(m_pInputLayout);

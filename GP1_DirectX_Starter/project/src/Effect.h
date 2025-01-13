@@ -20,9 +20,13 @@ namespace dae {
 			return m_pTechnique;
 		}
 
+		void SetViewProjectionMatrix(const Matrix& viewProjectionMatrix) const;
+
 	private:
 
 		ID3DX11Effect* m_pEffect{};
 		ID3DX11EffectTechnique* m_pTechnique{};
+
+		ID3DX11EffectMatrixVariable* m_pWorldViewProjectionMatrixVar{};
 	};
 }
