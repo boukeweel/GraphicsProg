@@ -2,6 +2,7 @@
 // Globals
 //---------------------------------------------------
 float4x4 g_WorldViewProjection : WorldViewProjection;
+float4x4 g_MeshWorldMatrix : MeshWorldMatrix;
 
 Texture2D g_DiffuseMap : DiffuseMap;
 
@@ -33,7 +34,7 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Position = float4(input.Position, 1.f);
+    output.Position = mul(float4(input.Position, 1.f), g_MeshWorldMatrix);
     output.Color = input.Color;
     
     output.Position = mul(output.Position, g_WorldViewProjection);
@@ -49,7 +50,8 @@ VS_OUTPUT VS(VS_INPUT input)
 //---------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    float4 sampleDiffuseColor = g_DiffuseMap.Sample(g_TextureSampler, input.TextureUV);
+    float4 sampleDiffuseColor = float4(1, 1, 1, 1);
+    sampleDiffuseColor *= g_DiffuseMap.Sample(g_TextureSampler, input.TextureUV);
     return sampleDiffuseColor;
 }
 

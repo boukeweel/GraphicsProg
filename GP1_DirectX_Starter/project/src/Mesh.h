@@ -9,8 +9,8 @@ namespace dae {
 		Vector3 Position{};
 		ColorRGB Color{ colors::White };
 		Vector2 uv{};
-		//Vector3 normal{};
-		//Vector3 tangent{};
+		Vector3 normal{};
+		Vector3 tangent{};
 		//Vector3 viewDirection{};
 	};
 
@@ -32,13 +32,24 @@ namespace dae {
 	class Mesh
 	{
 	public:
+
 		Mesh(ID3D11Device* pDevice,Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
+		Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::string& objName, Material* pMaterial);
+
 		~Mesh();
 
 		void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const;
 
+		void SetPosition(Vector3 translate);
+		void SetScale(Vector3 scale);
+		void SetYawRotation(float yaw);
+
+		void AddYawRotation(float yawDelta);
+
 	private:
 		void InitializeMesh(ID3D11Device* pDevice);
+
+		void UpdateWorldMatrix();
 
 		Effect* m_pEffects{nullptr};
 
@@ -60,8 +71,8 @@ namespace dae {
 			{0.0f,0.0f,0.0f,1.0f}
 		};
 
-		float m_YawRotation;
-		Vector3 m_Scale;
-		Vector3 m_Position;
+		float m_YawRotation{0};
+		Vector3 m_Scale{1.f,1.f,1.f};
+		Vector3 m_Position{0.f,0.f,0.f};
 	};
 }

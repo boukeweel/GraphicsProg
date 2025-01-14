@@ -23,6 +23,10 @@ namespace dae
 		void Render() const;
 
 	private:
+
+		void InitializeTextureCubeMesh();
+		void InitializeBike();
+
 		SDL_Window* m_pWindow{};
 
 		int m_Width{};

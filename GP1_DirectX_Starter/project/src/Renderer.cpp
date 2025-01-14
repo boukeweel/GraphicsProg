@@ -24,6 +24,12 @@ namespace dae {
 			std::cout << "DirectX initialization failed!\n";
 		}
 
+		//InitializeTextureCubeMesh();
+		InitializeBike();
+	}
+
+	void Renderer::InitializeTextureCubeMesh()
+	{
 		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
 
 		Material* pMaterial = new Material{
@@ -50,8 +56,8 @@ namespace dae {
 				1,2,5,
 				6,3,7,
 				3,4,7,
-				7,4,8,
-				4,5,8
+				7,4,5,
+				7,5,8
 			},pMaterial };
 
 
@@ -59,6 +65,22 @@ namespace dae {
 
 		m_pCamera = new Camera{ {0,0,-10.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
+
+	void Renderer::InitializeBike()
+	{
+		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
+
+		Material* pMaterial = new Material{
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png")
+		};
+
+		m_pMesh = new Mesh{ m_pDevice,m_pEffect,"resources/vehicle.obj",pMaterial };
+
+		m_pEffect->SetSampleState(0);
+
+		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+	}
+
 
 	Renderer::~Renderer()
 	{
@@ -90,6 +112,9 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_pCamera->Update(pTimer);
+
+
+		m_pMesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
 	}
 
 
@@ -110,6 +135,7 @@ namespace dae {
 		//Present backbuffer(Swap)
 		m_pSwapChain->Present(0, 0);
 	}
+
 
 	HRESULT Renderer::InitializeDirectX()
 	{

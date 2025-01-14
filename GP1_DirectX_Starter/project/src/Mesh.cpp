@@ -1,10 +1,21 @@
 #include "Mesh.h"
+#include "Utils.h"
 
 namespace dae
 {
 	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Material* pMaterial)
 		:m_pEffects{pEffect},m_modelVertices{std::move(vertices)},m_Indices{indices},m_IndicesCount{ static_cast<UINT>(m_Indices.size()) },m_pMaterial{pMaterial}
 	{
+		InitializeMesh(pDevice);
+	}
+
+	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::string& objName, Material* pMaterial)
+		:m_pEffects{pEffect},m_pMaterial(pMaterial)
+	{
+		Utils::ParseOBJ(objName, m_modelVertices, m_Indices);
+
+		m_IndicesCount = static_cast<UINT>(m_Indices.size());
+
 		InitializeMesh(pDevice);
 	}
 
@@ -20,6 +31,7 @@ namespace dae
 	void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const
 	{
 		m_pEffects->SetViewProjectionMatrix(viewProjectionMatrix);
+		m_pEffects->SetMeshWorldMatrix(m_WorldMatrix);
 
 		m_pEffects->SetDiffuseMap(m_pMaterial->pDiffuse);
 
@@ -107,6 +119,41 @@ namespace dae
 		if(FAILED(result))
 			return;
 
+	}
+
+	void Mesh::SetPosition(Vector3 translate)
+	{
+		m_Position = translate;
+		UpdateWorldMatrix();
+	}
+
+	void Mesh::SetScale(Vector3 scale)
+	{
+		m_Scale = scale;
+		UpdateWorldMatrix();
+	}
+
+	void Mesh::SetYawRotation(float yaw)
+	{
+		m_YawRotation = yaw;
+		UpdateWorldMatrix();
+	}
+
+	void Mesh::AddYawRotation(float yawDelta)
+	{
+		m_YawRotation += yawDelta;
+		UpdateWorldMatrix();
+	}
+
+
+
+	void Mesh::UpdateWorldMatrix()
+	{
+		const Matrix translationMatrix = Matrix::CreateTranslation(m_Position);
+		const Matrix scaleMatrix = Matrix::CreateScale(m_Scale);
+		const Matrix rotationMatrix = Matrix::CreateRotationY(m_YawRotation);
+
+		m_WorldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
 	}
 
 }

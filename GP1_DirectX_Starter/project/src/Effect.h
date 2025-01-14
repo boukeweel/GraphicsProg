@@ -22,6 +22,7 @@ namespace dae {
 		void SetSampleState(int state) const;
 
 		void SetViewProjectionMatrix(const Matrix& viewProjectionMatrix) const;
+		void SetMeshWorldMatrix(const Matrix& WorldMatrix) const;
 		void SetDiffuseMap(const Texture* pDiffuseTexture) const;
 
 	private:
@@ -33,6 +34,7 @@ namespace dae {
 		ID3DX11EffectSamplerVariable* m_pSampleStateVariable{};
 
 		ID3DX11EffectMatrixVariable* m_pWorldViewProjectionMatrixVar{};
+		ID3DX11EffectMatrixVariable* m_pMeshWorldMatrix{};
 
 		ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
 	};

@@ -25,6 +25,10 @@ namespace dae
 		m_pWorldViewProjectionMatrixVar = m_pEffect->GetVariableByName("g_WorldViewProjection")->AsMatrix();
 		if (!m_pWorldViewProjectionMatrixVar->IsValid())
 			std::wcout << L"m_pWorldViewProjectionMatrixVar not valid \n";
+
+		m_pMeshWorldMatrix = m_pEffect->GetVariableByName("g_MeshWorldMatrix")->AsMatrix();
+		if (!m_pMeshWorldMatrix->IsValid())
+			std::wcout << L"m_pMeshWorldMatrix not valid \n";
 		
 		m_pDiffuseMapVariable = m_pEffect->GetVariableByName("g_DiffuseMap")->AsShaderResource();
 		if (!m_pDiffuseMapVariable->IsValid())
@@ -146,6 +150,15 @@ namespace dae
 
 		m_pWorldViewProjectionMatrixVar->SetMatrix(reinterpret_cast<const float*>(&viewProjectionMatrix));
 	}
+
+	void Effect::SetMeshWorldMatrix(const Matrix& WorldMatrix) const
+	{
+		if (!m_pMeshWorldMatrix->IsValid())
+			return;
+
+		m_pMeshWorldMatrix->SetMatrix(reinterpret_cast<const float*>(&WorldMatrix));
+	}
+
 	void Effect::SetDiffuseMap(const Texture* pDiffuseTexture) const
 	{
 		if (m_pDiffuseMapVariable)
