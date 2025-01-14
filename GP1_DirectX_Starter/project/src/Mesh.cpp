@@ -2,14 +2,16 @@
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-		:m_pEffects{pEffect},m_modelVertices{std::move(vertices)},m_Indices{indices},m_IndicesCount{ static_cast<UINT>(m_Indices.size()) }
+	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Material* pMaterial)
+		:m_pEffects{pEffect},m_modelVertices{std::move(vertices)},m_Indices{indices},m_IndicesCount{ static_cast<UINT>(m_Indices.size()) },m_pMaterial{pMaterial}
 	{
 		InitializeMesh(pDevice);
 	}
 
 	Mesh::~Mesh()
 	{
+		delete m_pMaterial;
+
 		SafeRelease(m_pIndexBuffer)
 		SafeRelease(m_pVertexBuffer)
 		SafeRelease(m_pInputLayout)
@@ -18,6 +20,8 @@ namespace dae
 	void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const
 	{
 		m_pEffects->SetViewProjectionMatrix(viewProjectionMatrix);
+
+		m_pEffects->SetDiffuseMap(m_pMaterial->pDiffuse);
 
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -43,7 +47,7 @@ namespace dae
 	{
 		HRESULT result{};
 
-		static constexpr uint32_t numElements{ 2 };
+		static constexpr uint32_t numElements{ 3 };
 		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 		vertexDesc[0].SemanticName = "POSITION";
@@ -55,6 +59,12 @@ namespace dae
 		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vertexDesc[1].AlignedByteOffset = 12;
 		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[2].SemanticName = "TEXCOORD";
+		vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
 
 		D3DX11_PASS_DESC passDesc{};
 		ID3DX11EffectTechnique* pTechnique = m_pEffects->GetTechnique();

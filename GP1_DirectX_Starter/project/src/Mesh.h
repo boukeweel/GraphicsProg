@@ -8,10 +8,19 @@ namespace dae {
 	{
 		Vector3 Position{};
 		ColorRGB Color{ colors::White };
-		//Vector2 uv{};
+		Vector2 uv{};
 		//Vector3 normal{};
 		//Vector3 tangent{};
 		//Vector3 viewDirection{};
+	};
+
+	struct Material
+	{
+		Texture* pDiffuse = nullptr;
+		//Texture* pOpacity = nullptr;
+		//Texture* pNormal = nullptr;
+		//Texture* pSpecular = nullptr;
+		//Texture* pGloss = nullptr;
 	};
 
 	enum class primitiveTechnology
@@ -23,7 +32,7 @@ namespace dae {
 	class Mesh
 	{
 	public:
-		Mesh(ID3D11Device* pDevice,Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+		Mesh(ID3D11Device* pDevice,Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
 		~Mesh();
 
 		void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const;
@@ -40,6 +49,8 @@ namespace dae {
 		std::vector<Vertex> m_modelVertices{};
 		std::vector<uint32_t> m_Indices{};
 		UINT m_IndicesCount{ 0 };
+
+		Material* m_pMaterial{};
 
 		Matrix	m_WorldMatrix
 		{

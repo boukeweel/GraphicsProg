@@ -3,6 +3,10 @@
 //---------------------------------------------------
 float4x4 g_WorldViewProjection : WorldViewProjection;
 
+Texture2D g_DiffuseMap : DiffuseMap;
+
+SamplerState g_TextureSampler : Sampler;
+
 //---------------------------------------------------
 // input/output structs
 //---------------------------------------------------
@@ -10,12 +14,16 @@ struct VS_INPUT
 {
     float3 Position : POSITION;
     float3 Color : COLOR;
+    float2 TextureUV : TEXCOORD;
+
 };
 
 struct VS_OUTPUT
 {
     float4 Position : SV_Position;
     float3 Color : COLOR;
+    float2 TextureUV : TEXCOORD;
+
 };
 
 
@@ -30,6 +38,8 @@ VS_OUTPUT VS(VS_INPUT input)
     
     output.Position = mul(output.Position, g_WorldViewProjection);
     
+    output.TextureUV = input.TextureUV;
+    
     return output;
 }
 
@@ -39,7 +49,8 @@ VS_OUTPUT VS(VS_INPUT input)
 //---------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(input.Color, 1.f);
+    float4 sampleDiffuseColor = g_DiffuseMap.Sample(g_TextureSampler, input.TextureUV);
+    return sampleDiffuseColor;
 }
 
 //---------------------------------------------------

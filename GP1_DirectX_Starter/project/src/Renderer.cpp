@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "Texture.h"
 
 
 namespace dae {
@@ -25,13 +26,36 @@ namespace dae {
 
 		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
 
+		Material* pMaterial = new Material{
+			Texture::LoadFromFile(m_pDevice,"resources/uv_grid_2.png")
+		};
+
 		m_pMesh = new Mesh{
 		m_pDevice,m_pEffect,
-		{{{.0f,.5f,.5f},{1.f,0.f,0.f}},
-					{{.5f,-.5f,.5f},{0.f,0.f,1.f}},
-					{ {-.5f,-.5f,.5f} ,{0.f,1.f,0.f}}},
-		{0,1,2} };
+		{
+				{{-3.0f,  3.0f, -2.0f},{},{0.f,0.f}}, // V0
+				{{ 0.0f,  3.0f, -2.0f},{},{.5f,0.f}}, // V1
+				{{ 3.0f,  3.0f, -2.0f},{},{1.f,0.f}}, // V2
+				{{-3.0f,  0.0f, -2.0f},{},{0.f,.5f}}, // V3
+				{{ 0.0f,  0.0f, -2.0f},{},{.5f,.5f}}, // V4
+				{{ 3.0f,  0.0f, -2.0f},{},{1.f,.5f}}, // V5
+				{{-3.0f, -3.0f, -2.0f},{},{0.f,1.f}}, // V6
+				{{ 0.0f, -3.0f, -2.0f},{},{.5f,1.f}}, // V7
+				{{ 3.0f, -3.0f, -2.0f},{},{1.f,1.f}}, // V8
+			},
+			{
+				3,0,4,
+				0,1,4,
+				4,1,5,
+				1,2,5,
+				6,3,7,
+				3,4,7,
+				7,4,8,
+				4,5,8
+			},pMaterial };
 
+
+		m_pEffect->SetSampleState(0);
 
 		m_pCamera = new Camera{ {0,0,-10.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
