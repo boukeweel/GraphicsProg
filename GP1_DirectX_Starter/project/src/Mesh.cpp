@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Utils.h"
+#include "Texture.h"
 
 namespace dae
 {
@@ -21,6 +22,10 @@ namespace dae
 
 	Mesh::~Mesh()
 	{
+		delete m_pMaterial->pDiffuse;
+		delete m_pMaterial->pNormal;
+		delete m_pMaterial->pSpecular;
+		delete m_pMaterial->pGloss;
 		delete m_pMaterial;
 
 		SafeRelease(m_pIndexBuffer)
@@ -34,6 +39,9 @@ namespace dae
 		m_pEffects->SetMeshWorldMatrix(m_WorldMatrix);
 
 		m_pEffects->SetDiffuseMap(m_pMaterial->pDiffuse);
+		m_pEffects->SetNormalMap(m_pMaterial->pNormal);
+		m_pEffects->SetSpecularMap(m_pMaterial->pSpecular);
+		m_pEffects->SetGlossMap(m_pMaterial->pGloss);
 
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -59,24 +67,15 @@ namespace dae
 	{
 		HRESULT result{};
 
-		static constexpr uint32_t numElements{ 3 };
-		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
-
-		vertexDesc[0].SemanticName = "POSITION";
-		vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexDesc[0].AlignedByteOffset = 0;
-		vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-		vertexDesc[1].SemanticName = "COLOR";
-		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexDesc[1].AlignedByteOffset = 12;
-		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-		vertexDesc[2].SemanticName = "TEXCOORD";
-		vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		vertexDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
+		static constexpr uint32_t numElements{ 5 };
+		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]
+		{
+		{"POSITION", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0},
+		{"COLOR", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0},
+		{"TEXCOORD", 0,DXGI_FORMAT_R32G32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0},
+		{"NORMAL", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0},
+		{"TANGENT", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0}
+		};
 
 		D3DX11_PASS_DESC passDesc{};
 		ID3DX11EffectTechnique* pTechnique = m_pEffects->GetTechnique();

@@ -70,8 +70,13 @@ namespace dae {
 	{
 		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
 
+		m_pEffect->SetLightingDirection({0.577f,-0.577f,0.577f});
+
 		Material* pMaterial = new Material{
-			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png")
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_normal.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_specular.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
 		};
 
 		m_pMesh = new Mesh{ m_pDevice,m_pEffect,"resources/vehicle.obj",pMaterial };
@@ -127,6 +132,8 @@ namespace dae {
 		constexpr float color[4] = { 0.f,0.f,0.3f,1.f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
+
+		m_pEffect->SetCamaraOrigin(m_pCamera->GetOrigin());
 
 		//Invoke Draw Calls
 		m_pMesh->Render(m_pDeviceContext,m_pCamera->GetViewProjectionMatrix());

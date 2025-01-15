@@ -1,11 +1,7 @@
 #include "Effect.h"
 #include <iostream>
 #include <sstream>
-
 #include "Texture.h"
-
-
-#define SafeRelease(p) { if (p) { p->Release(); p = nullptr; } }
 
 namespace dae
 {
@@ -29,10 +25,31 @@ namespace dae
 		m_pMeshWorldMatrix = m_pEffect->GetVariableByName("g_MeshWorldMatrix")->AsMatrix();
 		if (!m_pMeshWorldMatrix->IsValid())
 			std::wcout << L"m_pMeshWorldMatrix not valid \n";
-		
+
+		m_pCameraOriginVariable = m_pEffect->GetVariableByName("g_CamaraOrigin")->AsVector();
+		if (!m_pCameraOriginVariable->IsValid())
+			std::wcout << L"m_pCameraOriginVariable not valid \n";
+
+		m_pLightDirectionVariable = m_pEffect->GetVariableByName("g_LightDirection")->AsVector();
+		if (!m_pLightDirectionVariable->IsValid())
+			std::wcout << L"m_pLightDirectionVariable not valid \n";
+
+
 		m_pDiffuseMapVariable = m_pEffect->GetVariableByName("g_DiffuseMap")->AsShaderResource();
 		if (!m_pDiffuseMapVariable->IsValid())
 			std::wcout << L"m_pDiffuseMapVariable not valid \n";
+
+		m_pNormalMapVariable = m_pEffect->GetVariableByName("g_NormalMap")->AsShaderResource();
+		if (!m_pNormalMapVariable->IsValid())
+			std::wcout << L"m_pNormalMapVariable not valid \n";
+
+		m_pSpecularMapVariable = m_pEffect->GetVariableByName("g_SpecularMap")->AsShaderResource();
+		if (!m_pSpecularMapVariable->IsValid())
+			std::wcout << L"m_pSpecularMapVariable not valid \n";
+
+		m_pGlossMapVariable = m_pEffect->GetVariableByName("g_GlossMap")->AsShaderResource();
+		if (!m_pGlossMapVariable->IsValid())
+			std::wcout << L"m_pGlossMapVariable not valid \n";
 	}
 
 	Effect::~Effect()
@@ -159,9 +176,54 @@ namespace dae
 		m_pMeshWorldMatrix->SetMatrix(reinterpret_cast<const float*>(&WorldMatrix));
 	}
 
+	void Effect::SetCamaraOrigin(const Vector3& origin) const
+	{
+		if(!m_pCameraOriginVariable->IsValid())
+			return;
+
+		m_pCameraOriginVariable->SetFloatVector(reinterpret_cast<const float*>(&origin));
+	}
+
+	void Effect::SetLightingDirection(const Vector3& direction) const
+	{
+		if(!m_pLightDirectionVariable->IsValid())
+			return;
+
+		m_pLightDirectionVariable->SetFloatVector(reinterpret_cast<const float*>(&direction));
+	}
+
 	void Effect::SetDiffuseMap(const Texture* pDiffuseTexture) const
 	{
-		if (m_pDiffuseMapVariable)
-			m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetShaderResource());
+		if (!m_pDiffuseMapVariable->IsValid())
+			return;
+
+		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetShaderResource());
 	}
+
+	void Effect::SetNormalMap(const Texture* pNormalTexture) const
+	{
+		if(!m_pNormalMapVariable->IsValid())
+			return;
+
+		m_pNormalMapVariable->SetResource(pNormalTexture->GetShaderResource());
+	}
+
+	void Effect::SetSpecularMap(const Texture* pSpecularTexture) const
+	{
+		if(!m_pSpecularMapVariable->IsValid())
+			return;
+
+		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetShaderResource());
+	}
+
+	void Effect::SetGlossMap(const Texture* pGlossTexture) const
+	{
+		if(!m_pGlossMapVariable->IsValid())
+			return;
+
+		m_pGlossMapVariable->SetResource(pGlossTexture->GetShaderResource());
+	}
+
+
+
 }

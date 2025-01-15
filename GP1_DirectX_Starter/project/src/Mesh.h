@@ -4,6 +4,8 @@
 
 namespace dae {
 
+	class Texture;
+
 	struct Vertex
 	{
 		Vector3 Position{};
@@ -16,11 +18,10 @@ namespace dae {
 
 	struct Material
 	{
-		Texture* pDiffuse = nullptr;
-		//Texture* pOpacity = nullptr;
-		//Texture* pNormal = nullptr;
-		//Texture* pSpecular = nullptr;
-		//Texture* pGloss = nullptr;
+		Texture* pDiffuse;
+		Texture* pNormal;
+		Texture* pSpecular;
+		Texture* pGloss;
 	};
 
 	enum class primitiveTechnology

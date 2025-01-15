@@ -6,10 +6,9 @@
 namespace dae {
 	class Texture final{
 	public:
-		~Texture();
-
 		static Texture* LoadFromFile(ID3D11Device* devicePtr,const std::string& path);
 
+		~Texture();
 
 		[[nodiscard]] ID3D11ShaderResourceView* GetShaderResource() const
 		{

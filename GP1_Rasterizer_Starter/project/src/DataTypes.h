@@ -33,7 +33,7 @@ namespace dae
 
 	struct Material
 	{
-		Texture* pDiffuse{ nullptr };
+		Texture* pDiffuse;
 		Texture* pNormal{nullptr};
 		Texture* pSpecular{ nullptr };
 		Texture* pGloss{ nullptr };
