@@ -1,5 +1,5 @@
 #pragma once
-#include "Effect.h"
+#include "EffectBase.h"
 #include "pch.h"
 
 namespace dae {
@@ -18,10 +18,10 @@ namespace dae {
 
 	struct Material
 	{
-		Texture* pDiffuse;
-		Texture* pNormal;
-		Texture* pSpecular;
-		Texture* pGloss;
+		Texture* pDiffuse = nullptr;
+		Texture* pNormal = nullptr;
+		Texture* pSpecular = nullptr;
+		Texture* pGloss = nullptr;
 	};
 
 	enum class primitiveTechnology
@@ -34,8 +34,8 @@ namespace dae {
 	{
 	public:
 
-		Mesh(ID3D11Device* pDevice,Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
-		Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::string& objName, Material* pMaterial);
+		Mesh(ID3D11Device* pDevice,EffectBase* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
+		Mesh(ID3D11Device* pDevice, EffectBase* pEffect, const std::string& objName, Material* pMaterial);
 
 		~Mesh();
 
@@ -52,7 +52,7 @@ namespace dae {
 
 		void UpdateWorldMatrix();
 
-		Effect* m_pEffects{nullptr};
+		EffectBase* m_pEffects{nullptr};
 
 		ID3D11Buffer* m_pVertexBuffer{ nullptr };
 		ID3D11Buffer* m_pIndexBuffer{ nullptr };

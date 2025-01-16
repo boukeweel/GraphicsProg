@@ -1,11 +1,11 @@
-#include "Effect.h"
+#include "EffectBase.h"
 #include <iostream>
 #include <sstream>
 #include "Texture.h"
 
 namespace dae
 {
-	dae::Effect::Effect(ID3D11Device* pDevice, const std::wstring& path)
+	dae::EffectBase::EffectBase(ID3D11Device* pDevice, const std::wstring& path)
 	: m_pDevice{pDevice}
 	{
 		m_pEffect = LoadEffect(pDevice, path);
@@ -52,12 +52,12 @@ namespace dae
 			std::wcout << L"m_pGlossMapVariable not valid \n";
 	}
 
-	Effect::~Effect()
+	EffectBase::~EffectBase()
 	{
 		SafeRelease(m_pEffect)
 	}
 
-	ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetfile)
+	ID3DX11Effect* EffectBase::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetfile)
 	{
 		HRESULT result;
 		ID3D10Blob* pErrorBlob{ nullptr };
@@ -98,7 +98,7 @@ namespace dae
 			else
 			{
 				std::wstringstream ss;
-				ss << "EffectLoader: failed to create Effect From File!\n Path: " << assetfile;
+				ss << "EffectLoader: failed to create EffectBase From File!\n Path: " << assetfile;
 				std::wcout << ss.str() << "\n";
 				return nullptr;
 			}
@@ -107,7 +107,7 @@ namespace dae
 		return pEffect;
 	}
 
-	void Effect::SetSampleState(int state) const
+	void EffectBase::SetSampleState(int state) const
 	{
 		if (!m_pSampleStateVariable->IsValid())
 			return;
@@ -160,7 +160,7 @@ namespace dae
 
 
 
-	void Effect::SetViewProjectionMatrix(const Matrix& viewProjectionMatrix) const
+	void EffectBase::SetViewProjectionMatrix(const Matrix& viewProjectionMatrix) const
 	{
 		if(!m_pWorldViewProjectionMatrixVar->IsValid())
 			return;
@@ -168,7 +168,7 @@ namespace dae
 		m_pWorldViewProjectionMatrixVar->SetMatrix(reinterpret_cast<const float*>(&viewProjectionMatrix));
 	}
 
-	void Effect::SetMeshWorldMatrix(const Matrix& WorldMatrix) const
+	void EffectBase::SetMeshWorldMatrix(const Matrix& WorldMatrix) const
 	{
 		if (!m_pMeshWorldMatrix->IsValid())
 			return;
@@ -176,7 +176,7 @@ namespace dae
 		m_pMeshWorldMatrix->SetMatrix(reinterpret_cast<const float*>(&WorldMatrix));
 	}
 
-	void Effect::SetCamaraOrigin(const Vector3& origin) const
+	void EffectBase::SetCamaraOrigin(const Vector3& origin) const
 	{
 		if(!m_pCameraOriginVariable->IsValid())
 			return;
@@ -184,7 +184,7 @@ namespace dae
 		m_pCameraOriginVariable->SetFloatVector(reinterpret_cast<const float*>(&origin));
 	}
 
-	void Effect::SetLightingDirection(const Vector3& direction) const
+	void EffectBase::SetLightingDirection(const Vector3& direction) const
 	{
 		if(!m_pLightDirectionVariable->IsValid())
 			return;
@@ -192,38 +192,35 @@ namespace dae
 		m_pLightDirectionVariable->SetFloatVector(reinterpret_cast<const float*>(&direction));
 	}
 
-	void Effect::SetDiffuseMap(const Texture* pDiffuseTexture) const
+	void EffectBase::SetDiffuseMap(const Texture* pDiffuseTexture) const
 	{
-		if (!m_pDiffuseMapVariable->IsValid())
+		if (!m_pDiffuseMapVariable->IsValid() && pDiffuseTexture == nullptr)
 			return;
 
 		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetShaderResource());
 	}
 
-	void Effect::SetNormalMap(const Texture* pNormalTexture) const
+	void EffectBase::SetNormalMap(const Texture* pNormalTexture) const
 	{
-		if(!m_pNormalMapVariable->IsValid())
+		if(!m_pNormalMapVariable->IsValid() && pNormalTexture == nullptr)
 			return;
 
 		m_pNormalMapVariable->SetResource(pNormalTexture->GetShaderResource());
 	}
 
-	void Effect::SetSpecularMap(const Texture* pSpecularTexture) const
+	void EffectBase::SetSpecularMap(const Texture* pSpecularTexture) const
 	{
-		if(!m_pSpecularMapVariable->IsValid())
+		if(!m_pSpecularMapVariable->IsValid() && pSpecularTexture == nullptr)
 			return;
 
 		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetShaderResource());
 	}
 
-	void Effect::SetGlossMap(const Texture* pGlossTexture) const
+	void EffectBase::SetGlossMap(const Texture* pGlossTexture) const
 	{
-		if(!m_pGlossMapVariable->IsValid())
+		if(!m_pGlossMapVariable->IsValid() && pGlossTexture == nullptr)
 			return;
 
 		m_pGlossMapVariable->SetResource(pGlossTexture->GetShaderResource());
 	}
-
-
-
 }

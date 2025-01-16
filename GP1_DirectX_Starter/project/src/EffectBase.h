@@ -8,10 +8,10 @@ namespace dae
 
 namespace dae {
 
-	class Effect {
+	class EffectBase {
 	public:
-		Effect(ID3D11Device* pDevice, const std::wstring& path);
-		~Effect();
+		EffectBase(ID3D11Device* pDevice, const std::wstring& path);
+		virtual ~EffectBase();
 
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 
@@ -31,10 +31,12 @@ namespace dae {
 		void SetSpecularMap(const Texture* pSpecularTexture) const;
 		void SetGlossMap(const Texture* pGlossTexture) const;
 
+	protected:
+		ID3DX11Effect* m_pEffect{};
 	private:
 
 		ID3D11Device* m_pDevice{};
-		ID3DX11Effect* m_pEffect{};
+		
 		ID3DX11EffectTechnique* m_pTechnique{};
 
 		ID3DX11EffectSamplerVariable* m_pSampleStateVariable{};
@@ -49,6 +51,5 @@ namespace dae {
 
 		ID3DX11EffectVectorVariable* m_pLightDirectionVariable{};
 		ID3DX11EffectVectorVariable* m_pCameraOriginVariable{};
-
 	};
 }

@@ -4,13 +4,13 @@
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Material* pMaterial)
+	Mesh::Mesh(ID3D11Device* pDevice, EffectBase* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Material* pMaterial)
 		:m_pEffects{pEffect},m_modelVertices{std::move(vertices)},m_Indices{indices},m_IndicesCount{ static_cast<UINT>(m_Indices.size()) },m_pMaterial{pMaterial}
 	{
 		InitializeMesh(pDevice);
 	}
 
-	Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, const std::string& objName, Material* pMaterial)
+	Mesh::Mesh(ID3D11Device* pDevice, EffectBase* pEffect, const std::string& objName, Material* pMaterial)
 		:m_pEffects{pEffect},m_pMaterial(pMaterial)
 	{
 		Utils::ParseOBJ(objName, m_modelVertices, m_Indices);

@@ -19,9 +19,7 @@ namespace dae
 		pSurface = nullptr;
 
 		return pTexture;
-		
 	}
-
 
 	Texture::Texture(ID3D11Device* pDivice, SDL_Surface* pSurface)
 	{

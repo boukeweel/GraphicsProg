@@ -7,6 +7,7 @@ struct SDL_Surface;
 namespace dae
 {
 	class Camera;
+	class EffectOpaque;
 
 	class Renderer final
 	{
@@ -47,7 +48,8 @@ namespace dae
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
 		Mesh* m_pMesh{};
-		Effect* m_pEffect{};
+		EffectBase* m_pEffect{};
+		EffectOpaque* m_pEffectOpaque{};
 		Camera* m_pCamera{};
 
 		Matrix m_Matrix{

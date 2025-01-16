@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "EffectOpaque.h"
+#include "EffectBase.h"
 #include "Texture.h"
 
 
@@ -30,7 +32,7 @@ namespace dae {
 
 	void Renderer::InitializeTextureCubeMesh()
 	{
-		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
+		m_pEffect = new EffectBase{ m_pDevice,L"resources/PosCol3D.fx" };
 
 		Material* pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/uv_grid_2.png")
@@ -68,9 +70,14 @@ namespace dae {
 
 	void Renderer::InitializeBike()
 	{
-		m_pEffect = new Effect{ m_pDevice,L"resources/PosCol3D.fx" };
+		m_pEffectOpaque = new EffectOpaque{ m_pDevice,L"resources/OpaqueShader.fx" };
 
-		m_pEffect->SetLightingDirection({0.577f,-0.577f,0.577f});
+		m_pEffectOpaque->SetLightingDirection({ 0.577f,-0.577f,0.577f });
+		m_pEffectOpaque->SetLightIntensity(7.f);
+		m_pEffectOpaque->SetPhongSpecular(1.f);
+		m_pEffectOpaque->SetPhongExponent(25.f);
+		m_pEffectOpaque->SetAmbientColor({ 0.025f,0.025f,0.025f });
+		m_pEffectOpaque->SetUseNormalMap(true);
 
 		Material* pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
@@ -79,9 +86,9 @@ namespace dae {
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
 		};
 
-		m_pMesh = new Mesh{ m_pDevice,m_pEffect,"resources/vehicle.obj",pMaterial };
+		m_pMesh = new Mesh{ m_pDevice,m_pEffectOpaque,"resources/vehicle.obj",pMaterial };
 
-		m_pEffect->SetSampleState(0);
+		m_pEffectOpaque->SetSampleState(0);
 
 		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
@@ -106,6 +113,9 @@ namespace dae {
 
 		delete m_pEffect;
 		m_pEffect = nullptr;
+
+		delete m_pEffectOpaque;
+		m_pEffectOpaque = nullptr;
 
 		delete m_pMesh;
 		m_pMesh = nullptr;
@@ -133,7 +143,7 @@ namespace dae {
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
-		m_pEffect->SetCamaraOrigin(m_pCamera->GetOrigin());
+		m_pEffectOpaque->SetCamaraOrigin(m_pCamera->GetOrigin());
 
 		//Invoke Draw Calls
 		m_pMesh->Render(m_pDeviceContext,m_pCamera->GetViewProjectionMatrix());
