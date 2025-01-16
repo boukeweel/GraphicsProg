@@ -10,6 +10,8 @@ namespace dae {
 
 		~Texture();
 
+		ColorRGB Sample(const Vector2& uv) const;
+
 		[[nodiscard]] ID3D11ShaderResourceView* GetShaderResource() const
 		{
 			return m_pShaderResource;
@@ -17,7 +19,12 @@ namespace dae {
 	private:
 		Texture(ID3D11Device* pDivice,SDL_Surface* pSurface);
 
+		//DirectX
 		ID3D11Texture2D* m_pResource;
 		ID3D11ShaderResourceView* m_pShaderResource;
+
+		//sdl
+		SDL_Surface* m_pSurface{ nullptr };
+		uint32_t* m_pSurfacePixels{ nullptr };
 	};
 }

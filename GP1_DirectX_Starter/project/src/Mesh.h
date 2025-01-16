@@ -13,7 +13,6 @@ namespace dae {
 		Vector2 uv{};
 		Vector3 normal{};
 		Vector3 tangent{};
-		//Vector3 viewDirection{};
 	};
 
 	struct Material
@@ -34,12 +33,10 @@ namespace dae {
 	{
 	public:
 
-		Mesh(ID3D11Device* pDevice,EffectBase* pEffect, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
-		Mesh(ID3D11Device* pDevice, EffectBase* pEffect, const std::string& objName, Material* pMaterial);
+		Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,Material* pMaterial);
+		Mesh(const std::string& objName, Material* pMaterial);
 
-		~Mesh();
-
-		void Render(ID3D11DeviceContext* pDeviceContext, const Matrix& viewProjectionMatrix) const;
+		virtual ~Mesh();
 
 		void SetPosition(Vector3 translate);
 		void SetScale(Vector3 scale);
@@ -47,16 +44,8 @@ namespace dae {
 
 		void AddYawRotation(float yawDelta);
 
-	private:
-		void InitializeMesh(ID3D11Device* pDevice);
-
+	protected:
 		void UpdateWorldMatrix();
-
-		EffectBase* m_pEffects{nullptr};
-
-		ID3D11Buffer* m_pVertexBuffer{ nullptr };
-		ID3D11Buffer* m_pIndexBuffer{ nullptr };
-		ID3D11InputLayout* m_pInputLayout{ nullptr };
 
 		std::vector<Vertex> m_modelVertices{};
 		std::vector<uint32_t> m_Indices{};

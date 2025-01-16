@@ -5,7 +5,8 @@
 #include "EffectBase.h"
 #include "EffectPartialCoverage.h"
 #include "Texture.h"
-
+#include "MeshSoftware.h"
+#include "MeshDirectX.h"
 
 namespace dae {
 
@@ -14,6 +15,13 @@ namespace dae {
 	{
 		//Initialize
 		SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
+
+		//initialize software pipeline
+		m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
+		m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
+		m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
+
+		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
 		//Initialize DirectX pipeline
 		const HRESULT result = InitializeDirectX();
@@ -27,49 +35,12 @@ namespace dae {
 			std::cout << "DirectX initialization failed!\n";
 		}
 
-		//InitializeTextureCubeMesh();
-		InitializeBike();
+		InitializeBikeDirectX();
+		InitializeBikeSoftware();
+		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
 
-	void Renderer::InitializeTextureCubeMesh()
-	{
-		m_pEffect = new EffectBase{ m_pDevice,L"resources/PosCol3D.fx" };
-
-		Material* pMaterial = new Material{
-			Texture::LoadFromFile(m_pDevice,"resources/uv_grid_2.png")
-		};
-
-		m_pMesh = new Mesh{
-		m_pDevice,m_pEffect,
-		{
-				{{-3.0f,  3.0f, -2.0f},{},{0.f,0.f}}, // V0
-				{{ 0.0f,  3.0f, -2.0f},{},{.5f,0.f}}, // V1
-				{{ 3.0f,  3.0f, -2.0f},{},{1.f,0.f}}, // V2
-				{{-3.0f,  0.0f, -2.0f},{},{0.f,.5f}}, // V3
-				{{ 0.0f,  0.0f, -2.0f},{},{.5f,.5f}}, // V4
-				{{ 3.0f,  0.0f, -2.0f},{},{1.f,.5f}}, // V5
-				{{-3.0f, -3.0f, -2.0f},{},{0.f,1.f}}, // V6
-				{{ 0.0f, -3.0f, -2.0f},{},{.5f,1.f}}, // V7
-				{{ 3.0f, -3.0f, -2.0f},{},{1.f,1.f}}, // V8
-			},
-			{
-				3,0,4,
-				0,1,4,
-				4,1,5,
-				1,2,5,
-				6,3,7,
-				3,4,7,
-				7,4,5,
-				7,5,8
-			},pMaterial };
-
-
-		m_pEffect->SetSampleState(0);
-
-		m_pCamera = new Camera{ {0,0,-10.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
-	}
-
-	void Renderer::InitializeBike()
+	void Renderer::InitializeBikeDirectX()
 	{
 		m_pEffectOpaque = new EffectOpaque{ m_pDevice,L"resources/OpaqueShader.fx" };
 
@@ -89,9 +60,9 @@ namespace dae {
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
 		};
 
-		Mesh* pMesh = new Mesh{ m_pDevice,m_pEffectOpaque,"resources/vehicle.obj",pMaterial };
+		MeshDirectX* pMesh = new MeshDirectX{ m_pDevice,m_pEffectOpaque,"resources/vehicle.obj",pMaterial };
 
-		m_pMeshes.emplace_back(pMesh);
+		m_pDirectXMeshes.emplace_back(pMesh);
 
 		m_pEffectPartialCoverage = new EffectPartialCoverage{ m_pDevice,L"resources/PartialCoverage.fx" };
 
@@ -105,11 +76,23 @@ namespace dae {
 			nullptr,
 		};
 
-		pMesh = new Mesh{ m_pDevice,m_pEffectPartialCoverage,"resources/fireFX.obj",pMaterial };
+		pMesh = new MeshDirectX{ m_pDevice,m_pEffectPartialCoverage,"resources/fireFX.obj",pMaterial };
 
-		m_pMeshes.emplace_back(pMesh);
+		m_pDirectXMeshes.emplace_back(pMesh);
+	}
 
-		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+	void Renderer::InitializeBikeSoftware()
+	{
+		Material* pMaterial = new Material{
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_normal.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_specular.png"),
+			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
+		};
+
+		MeshSoftware* mesh = new MeshSoftware("resources/vehicle.obj", pMaterial, m_pBackBuffer, m_pBackBufferPixels, m_pDepthBufferPixels, m_Height, m_Width);
+
+		m_pSoftwareMeshes.emplace_back(mesh);
 	}
 
 
@@ -139,7 +122,13 @@ namespace dae {
 		delete m_pEffectPartialCoverage;
 		m_pEffectPartialCoverage = nullptr;
 
-		for (Mesh* mesh : m_pMeshes)
+		for (MeshDirectX* mesh : m_pDirectXMeshes)
+		{
+			delete mesh;
+			mesh = nullptr;
+		}
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
 		{
 			delete mesh;
 			mesh = nullptr;
@@ -154,14 +143,36 @@ namespace dae {
 		m_pCamera->Update(pTimer);
 
 
-		for (Mesh* mesh : m_pMeshes)
+		/*if(m_UseDirectX)
 		{
-			mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+			for (MeshDirectX* mesh : m_pDirectXMeshes)
+			{
+				mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+			}
 		}
+		else
+		{
+			for (MeshSoftware* mesh : m_pSoftwareMeshes)
+			{
+				mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+			}
+		}*/
 	}
 
 
 	void Renderer::Render() const
+	{
+		if(m_UseDirectX)
+		{
+			RenderDirectX();
+		}
+		else
+		{
+			RenderSoftware();
+		}
+	}
+
+	void Renderer::RenderDirectX() const
 	{
 		if (!m_IsInitialized)
 			return;
@@ -175,13 +186,34 @@ namespace dae {
 		m_pEffectPartialCoverage->SetCamaraOrigin(m_pCamera->GetOrigin());
 
 		//Invoke Draw Calls
-		for (Mesh* mesh : m_pMeshes)
+		for (MeshDirectX* mesh : m_pDirectXMeshes)
 		{
 			mesh->Render(m_pDeviceContext, m_pCamera->GetViewProjectionMatrix());
 		}
 
 		//Present backbuffer(Swap)
 		m_pSwapChain->Present(0, 0);
+	}
+
+	void Renderer::RenderSoftware() const
+	{
+		SDL_LockSurface(m_pBackBuffer);
+
+		//fill the whole depth buffer with max values so it can become smaller
+		std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, std::numeric_limits<float>::max());
+		// Clear screen buffer
+		SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->Render(m_pCamera);
+		}
+
+		//@END
+		//Update SDL Surface
+		SDL_UnlockSurface(m_pBackBuffer);
+		SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
+		SDL_UpdateWindowSurface(m_pWindow);
 	}
 
 

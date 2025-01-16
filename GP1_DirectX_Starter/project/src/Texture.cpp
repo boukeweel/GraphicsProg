@@ -15,13 +15,11 @@ namespace dae
 
 		Texture* pTexture = new Texture(devicePtr, pSurface);
 
-		SDL_FreeSurface(pSurface);
-		pSurface = nullptr;
-
 		return pTexture;
 	}
 
-	Texture::Texture(ID3D11Device* pDivice, SDL_Surface* pSurface)
+	Texture::Texture(ID3D11Device* pDivice, SDL_Surface* pSurface):
+	m_pSurface{pSurface},m_pSurfacePixels{ static_cast<uint32_t*>(m_pSurface->pixels) }
 	{
 		HRESULT result;
 
@@ -62,10 +60,35 @@ namespace dae
 
 	}
 
-
 	Texture::~Texture()
 	{
 		SafeRelease(m_pResource)
 		SafeRelease(m_pShaderResource)
+
+		if (m_pSurface)
+		{
+			SDL_FreeSurface(m_pSurface);
+			m_pSurface = nullptr;
+		}
+
+		delete m_pSurfacePixels;
 	}
+
+	ColorRGB Texture::Sample(const Vector2& uv) const
+	{
+		int texWidth = m_pSurface->w;
+		int texHeight = m_pSurface->h;
+
+		int x = static_cast<int>(uv.x * (texWidth - 1));
+		int y = static_cast<int>(uv.y * (texHeight - 1));
+
+		uint32_t pixelColor = m_pSurfacePixels[x + y * texWidth];
+
+		uint8_t r, g, b;
+		SDL_GetRGB(pixelColor, m_pSurface->format, &r, &g, &b);
+
+		return ColorRGB{ r / 255.f, g / 255.f, b / 255.f };
+	}
+
+	
 }

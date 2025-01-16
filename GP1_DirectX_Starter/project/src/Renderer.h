@@ -1,6 +1,11 @@
 #pragma once
-#include "Mesh.h"
 
+
+namespace dae
+{
+	class MeshDirectX;
+	class MeshSoftware;
+}
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -27,16 +32,29 @@ namespace dae
 		void Render() const;
 
 	private:
+		void InitializeBikeDirectX();
+		void InitializeBikeSoftware();
 
-		void InitializeTextureCubeMesh();
-		void InitializeBike();
+		void RenderDirectX() const;
+		void RenderSoftware() const;
 
 		SDL_Window* m_pWindow{};
+		Camera* m_pCamera{};
 
 		int m_Width{};
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+		bool m_UseDirectX{ false };
+
+		//Software
+		SDL_Surface* m_pFrontBuffer{ nullptr };
+		SDL_Surface* m_pBackBuffer{ nullptr };
+		uint32_t* m_pBackBufferPixels{};
+
+		float* m_pDepthBufferPixels{};
+
+		std::vector<MeshSoftware*> m_pSoftwareMeshes;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();
@@ -50,19 +68,10 @@ namespace dae
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
-		std::vector<Mesh*> m_pMeshes;
-		Mesh* m_pMesh{};
+		std::vector<MeshDirectX*> m_pDirectXMeshes;
 
 		EffectBase* m_pEffect{};
 		EffectOpaque* m_pEffectOpaque{};
 		EffectPartialCoverage* m_pEffectPartialCoverage{};
-		Camera* m_pCamera{};
-
-		Matrix m_Matrix{
-			{1.0f,0.0f,0.0f,0.0f},
-			{0.0f,1.0f,0.0f,0.0f},
-			{0.0f,0.0f,1.0f,0.0f},
-			{0.0f,0.0f,5.0f,1.0f}
-		};
 	};
 }

@@ -1,12 +1,8 @@
 #pragma once
 #include "pch.h"
 
-namespace dae
-{
-	class Texture;
-}
-
 namespace dae {
+	class Texture;
 
 	class EffectBase {
 	public:
