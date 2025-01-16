@@ -50,7 +50,9 @@ namespace dae
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
+		std::vector<Mesh*> m_pMeshes;
 		Mesh* m_pMesh{};
+
 		EffectBase* m_pEffect{};
 		EffectOpaque* m_pEffectOpaque{};
 		EffectPartialCoverage* m_pEffectPartialCoverage{};

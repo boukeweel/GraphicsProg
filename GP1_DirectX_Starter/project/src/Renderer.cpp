@@ -80,6 +80,8 @@ namespace dae {
 		m_pEffectOpaque->SetAmbientColor({ 0.025f,0.025f,0.025f });
 		m_pEffectOpaque->SetUseNormalMap(true);
 
+		m_pEffectOpaque->SetSampleState(0);
+
 		Material* pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_normal.png"),
@@ -87,9 +89,25 @@ namespace dae {
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
 		};
 
-		m_pMesh = new Mesh{ m_pDevice,m_pEffectOpaque,"resources/vehicle.obj",pMaterial };
+		Mesh* pMesh = new Mesh{ m_pDevice,m_pEffectOpaque,"resources/vehicle.obj",pMaterial };
 
-		m_pEffectOpaque->SetSampleState(0);
+		m_pMeshes.emplace_back(pMesh);
+
+		m_pEffectPartialCoverage = new EffectPartialCoverage{ m_pDevice,L"resources/PartialCoverage.fx" };
+
+		m_pEffectPartialCoverage->SetLightingDirection({ 0.577f,-0.577f,0.577f });
+		m_pEffectPartialCoverage->SetSampleState(0);
+
+		pMaterial = new Material{
+			Texture::LoadFromFile(m_pDevice,"resources/fireFX_diffuse.png"),
+			nullptr,
+			nullptr,
+			nullptr,
+		};
+
+		pMesh = new Mesh{ m_pDevice,m_pEffectPartialCoverage,"resources/fireFX.obj",pMaterial };
+
+		m_pMeshes.emplace_back(pMesh);
 
 		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
@@ -121,8 +139,11 @@ namespace dae {
 		delete m_pEffectPartialCoverage;
 		m_pEffectPartialCoverage = nullptr;
 
-		delete m_pMesh;
-		m_pMesh = nullptr;
+		for (Mesh* mesh : m_pMeshes)
+		{
+			delete mesh;
+			mesh = nullptr;
+		}
 
 		delete m_pCamera;
 		m_pCamera = nullptr;
@@ -133,7 +154,10 @@ namespace dae {
 		m_pCamera->Update(pTimer);
 
 
-		m_pMesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+		for (Mesh* mesh : m_pMeshes)
+		{
+			mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+		}
 	}
 
 
@@ -148,10 +172,13 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
 		m_pEffectOpaque->SetCamaraOrigin(m_pCamera->GetOrigin());
+		m_pEffectPartialCoverage->SetCamaraOrigin(m_pCamera->GetOrigin());
 
 		//Invoke Draw Calls
-		m_pMesh->Render(m_pDeviceContext,m_pCamera->GetViewProjectionMatrix());
-
+		for (Mesh* mesh : m_pMeshes)
+		{
+			mesh->Render(m_pDeviceContext, m_pCamera->GetViewProjectionMatrix());
+		}
 
 		//Present backbuffer(Swap)
 		m_pSwapChain->Present(0, 0);

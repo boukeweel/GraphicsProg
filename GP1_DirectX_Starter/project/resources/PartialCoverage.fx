@@ -10,6 +10,33 @@ Texture2D g_DiffuseMap : DiffuseMap;
 
 SamplerState g_TextureSampler : Sampler;
 
+
+RasterizerState g_RasterizerState
+{
+    CullMode = none;
+    FrontCounterClockwise = false;
+};
+
+BlendState g_BlendState
+{
+    BlendEnable[0] = true;
+    SrcBlend = src_alpha;
+    DestBlend = inv_src_alpha;
+    BlendOp = add;
+    SrcBlendAlpha = zero;
+    DestBlendAlpha = zero;
+    BlendOpAlpha = add;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
+DepthStencilState g_DepthStencilState
+{
+    DepthEnable = true;
+    DepthWriteMask = zero;
+    DepthFunc = less;
+    StencilEnable = false;
+};
+
 //---------------------------------------------------
 // input/output structs
 //---------------------------------------------------
@@ -74,6 +101,10 @@ technique11 DefaultTechnique
 {
     pass P0
     {
+        SetRasterizerState(g_RasterizerState);
+        SetDepthStencilState(g_DepthStencilState, 0);
+        SetBlendState(g_BlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
+
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS()));
