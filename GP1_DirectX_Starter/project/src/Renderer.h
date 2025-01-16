@@ -1,13 +1,16 @@
 #pragma once
 #include "Mesh.h"
 
+
 struct SDL_Window;
 struct SDL_Surface;
 
 namespace dae
 {
 	class Camera;
+	class EffectBase;
 	class EffectOpaque;
+	class EffectPartialCoverage;
 
 	class Renderer final
 	{
@@ -50,6 +53,7 @@ namespace dae
 		Mesh* m_pMesh{};
 		EffectBase* m_pEffect{};
 		EffectOpaque* m_pEffectOpaque{};
+		EffectPartialCoverage* m_pEffectPartialCoverage{};
 		Camera* m_pCamera{};
 
 		Matrix m_Matrix{

@@ -144,8 +144,6 @@ namespace dae
 		UpdateWorldMatrix();
 	}
 
-
-
 	void Mesh::UpdateWorldMatrix()
 	{
 		const Matrix translationMatrix = Matrix::CreateTranslation(m_Position);

@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "EffectOpaque.h"
 #include "EffectBase.h"
+#include "EffectPartialCoverage.h"
 #include "Texture.h"
 
 
@@ -116,6 +117,9 @@ namespace dae {
 
 		delete m_pEffectOpaque;
 		m_pEffectOpaque = nullptr;
+
+		delete m_pEffectPartialCoverage;
+		m_pEffectPartialCoverage = nullptr;
 
 		delete m_pMesh;
 		m_pMesh = nullptr;
