@@ -72,7 +72,7 @@ namespace dae {
 		uint32_t* m_pBackBufferPixels{ nullptr };
 		float* m_pDepthBufferPixels{ nullptr };
 
-		int m_Width;
-		int m_Height;
+		const int m_Width;
+		const int m_Height;
 	};
 }

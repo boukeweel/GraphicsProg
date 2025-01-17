@@ -7,7 +7,12 @@ namespace dae
 {
 	MeshSoftware::MeshSoftware(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Material* pMaterial,
 		SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels, float* pDepthBufferPixels, int width, int height):
-		Mesh(vertices,indices,pMaterial), m_pBackBuffer{pBackBuffer},m_pBackBufferPixels{pBackBufferPixels},m_pDepthBufferPixels{pDepthBufferPixels}, m_Width{ width }, m_Height{ height }
+	Mesh(vertices,indices,pMaterial),
+	m_pBackBuffer{pBackBuffer},
+	m_pBackBufferPixels{pBackBufferPixels},
+	m_pDepthBufferPixels{pDepthBufferPixels},
+	m_Width{ width },
+	m_Height{ height }
 	{
 		InitializeMesh();
 	}
@@ -59,16 +64,16 @@ namespace dae
 
 		for (Vertex_Out* vertex : m_pVertexOut)
 		{
-			vertex->position = pCamera->GetViewProjectionMatrix().TransformPoint(vertex->position);
+			vertex->position = m_WorldMatrix.TransformPoint(vertex->position);
 
 			//transform the normal and tagents so its in the correct position
-			vertex->normal = pCamera->GetViewProjectionMatrix().TransformVector(vertex->normal).Normalized();
-			vertex->tangent = pCamera->GetViewProjectionMatrix().TransformVector(vertex->tangent).Normalized();
+			vertex->normal = m_WorldMatrix.TransformVector(vertex->normal).Normalized();
+			vertex->tangent = m_WorldMatrix.TransformVector(vertex->tangent).Normalized();
 
 			//get the viewDirection
 			vertex->viewDirection = (vertex->position.GetXYZ() - pCamera->GetOrigin()).Normalized();
 
-			/*vertex->position = pCamera->GetViewProjectionMatrix().TransformPoint(vertex->position);*/
+			vertex->position = pCamera->GetViewProjectionMatrix().TransformPoint(vertex->position);
 
 			vertex->position.x /= vertex->position.w;
 			vertex->position.y /= vertex->position.w;
@@ -144,6 +149,7 @@ namespace dae
 		{
 			for (int px = boundaryBox.Smallest.x; px <= boundaryBox.Biggest.x; ++px)
 			{
+
 				// Calculate the pixel center point in screen space
 				const Vector2 P(px + 0.5f, py + 0.5f);
 
@@ -314,7 +320,7 @@ namespace dae
 	}
 	void MeshSoftware::ResetVertices() const
 	{
-		for (size_t i = 0; i < m_pVertexOut.size(); ++i)
+		for (size_t i = 0; i < m_modelVertices.size(); ++i)
 		{
 			m_pVertexOut[i]->position = { m_modelVertices[i].Position.x, m_modelVertices[i].Position.y, m_modelVertices[i].Position.z, 1.f };
 			m_pVertexOut[i]->color = m_modelVertices[i].Color;

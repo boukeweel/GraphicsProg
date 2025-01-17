@@ -16,10 +16,11 @@ namespace dae {
 		//Initialize
 		SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 
+
 		//initialize software pipeline
 		m_pFrontBuffer = SDL_GetWindowSurface(pWindow);
 		m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
-		m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
+		m_pBackBufferPixels = static_cast<uint32_t*>(m_pBackBuffer->pixels);
 
 		m_pDepthBufferPixels = new float[m_Width * m_Height];
 
@@ -37,6 +38,7 @@ namespace dae {
 
 		InitializeBikeDirectX();
 		InitializeBikeSoftware();
+
 		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 	}
 
@@ -84,13 +86,13 @@ namespace dae {
 	void Renderer::InitializeBikeSoftware()
 	{
 		Material* pMaterial = new Material{
-			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
-			Texture::LoadFromFile(m_pDevice,"resources/vehicle_normal.png"),
-			Texture::LoadFromFile(m_pDevice,"resources/vehicle_specular.png"),
-			Texture::LoadFromFile(m_pDevice,"resources/vehicle_gloss.png")
+			Texture::LoadFromFile("resources/vehicle_diffuse.png"),
+			Texture::LoadFromFile("resources/vehicle_normal.png"),
+			Texture::LoadFromFile("resources/vehicle_specular.png"),
+			Texture::LoadFromFile("resources/vehicle_gloss.png")
 		};
 
-		MeshSoftware* mesh = new MeshSoftware("resources/vehicle.obj", pMaterial, m_pBackBuffer, m_pBackBufferPixels, m_pDepthBufferPixels, m_Height, m_Width);
+		MeshSoftware* mesh = new MeshSoftware("resources/vehicle.obj", pMaterial, m_pBackBuffer, m_pBackBufferPixels, m_pDepthBufferPixels, m_Width, m_Height);
 
 		m_pSoftwareMeshes.emplace_back(mesh);
 	}
@@ -136,6 +138,8 @@ namespace dae {
 
 		delete m_pCamera;
 		m_pCamera = nullptr;
+
+		delete[] m_pDepthBufferPixels;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -143,20 +147,23 @@ namespace dae {
 		m_pCamera->Update(pTimer);
 
 
-		/*if(m_UseDirectX)
+		float rotation{ PI * 2 * pTimer->GetElapsed() * (45.f / 360.f) };
+
+		if(m_UseDirectX)
 		{
+
 			for (MeshDirectX* mesh : m_pDirectXMeshes)
 			{
-				mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+				mesh->AddYawRotation(rotation);
 			}
 		}
 		else
 		{
 			for (MeshSoftware* mesh : m_pSoftwareMeshes)
 			{
-				mesh->AddYawRotation(PI * 2 * pTimer->GetElapsed() * (45.f / 360.f));
+				mesh->AddYawRotation(rotation);
 			}
-		}*/
+		}
 	}
 
 

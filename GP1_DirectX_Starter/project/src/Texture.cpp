@@ -15,11 +15,33 @@ namespace dae
 
 		Texture* pTexture = new Texture(devicePtr, pSurface);
 
+		SDL_FreeSurface(pSurface);
+		pSurface = nullptr;
+
 		return pTexture;
 	}
 
+	Texture* Texture::LoadFromFile(const std::string& path)
+	{
+		SDL_Surface* pSurface{ IMG_Load(path.c_str()) };
+		if (!pSurface)
+		{
+			std::cout << "Texture did not load in with file path: " + path + "\n";
+			return nullptr;
+		}
+
+		return new Texture(pSurface);
+	}
+
+	Texture::Texture(SDL_Surface* pSurface):
+		m_pSurface{ pSurface }, m_pSurfacePixels{ static_cast<uint32_t*>(m_pSurface->pixels) },m_UseDirectX{false}
+	{
+		m_UseDirectX = false;
+	}
+
+
 	Texture::Texture(ID3D11Device* pDivice, SDL_Surface* pSurface):
-	m_pSurface{pSurface},m_pSurfacePixels{ static_cast<uint32_t*>(m_pSurface->pixels) }
+	m_UseDirectX{true}
 	{
 		HRESULT result;
 
@@ -62,20 +84,26 @@ namespace dae
 
 	Texture::~Texture()
 	{
-		SafeRelease(m_pResource)
-		SafeRelease(m_pShaderResource)
-
-		if (m_pSurface)
+		if(m_UseDirectX)
 		{
-			SDL_FreeSurface(m_pSurface);
-			m_pSurface = nullptr;
+			SafeRelease(m_pResource)
+			SafeRelease(m_pShaderResource)
 		}
-
-		delete m_pSurfacePixels;
+		else
+		{
+			if (m_pSurface)
+			{
+				SDL_FreeSurface(m_pSurface);
+				m_pSurface = nullptr;
+			}
+		}
 	}
 
 	ColorRGB Texture::Sample(const Vector2& uv) const
 	{
+		if (m_UseDirectX)
+			return { 0,0,0 };
+
 		int texWidth = m_pSurface->w;
 		int texHeight = m_pSurface->h;
 

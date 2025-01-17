@@ -7,6 +7,7 @@ namespace dae {
 	class Texture final{
 	public:
 		static Texture* LoadFromFile(ID3D11Device* devicePtr,const std::string& path);
+		static Texture* LoadFromFile(const std::string& path);
 
 		~Texture();
 
@@ -14,10 +15,14 @@ namespace dae {
 
 		[[nodiscard]] ID3D11ShaderResourceView* GetShaderResource() const
 		{
+			if (!m_UseDirectX)
+				return nullptr;
+
 			return m_pShaderResource;
 		}
 	private:
 		Texture(ID3D11Device* pDivice,SDL_Surface* pSurface);
+		Texture(SDL_Surface* pSurface);
 
 		//DirectX
 		ID3D11Texture2D* m_pResource;
@@ -25,6 +30,8 @@ namespace dae {
 
 		//sdl
 		SDL_Surface* m_pSurface{ nullptr };
-		uint32_t* m_pSurfacePixels{ nullptr };
+		uint32_t* m_pSurfacePixels{};
+
+		bool m_UseDirectX{};
 	};
 }

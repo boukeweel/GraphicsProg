@@ -35,7 +35,7 @@ namespace dae
 
 	void Camera::CombineViewProjectionMatrix()
 	{
-		m_ViewProjectionMatrix = m_InvViewMatrix * m_ProjectionMatrix;
+		m_ViewProjectionMatrix = m_ViewMatrix * m_ProjectionMatrix;
 	}
 
 	void Camera::Update(const Timer* pTimer)
