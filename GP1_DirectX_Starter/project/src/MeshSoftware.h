@@ -30,6 +30,24 @@ namespace dae {
 
 		void Render(const Camera* pCamera) const;
 
+		void ToggleToDepthBuffer()
+		{
+			m_DepthToggle = !m_DepthToggle;
+		}
+		void ToggleRotation()
+		{
+			m_ShouldRotated = !m_ShouldRotated;
+		}
+		void ToggleNormalMapping()
+		{
+			m_NormalMapActive = !m_NormalMapActive;
+		}
+		void ToggleShowBoundingBox()
+		{
+			m_ShowBoundingBox = !m_ShowBoundingBox;
+		}
+		void CycleShadingMode();
+
 	private:
 		void InitializeMesh();
 
@@ -66,6 +84,7 @@ namespace dae {
 		bool m_ShouldRotated{ true };
 		bool m_NormalMapActive{ true };
 		bool m_DepthToggle{ false };
+		bool m_ShowBoundingBox{ false };
 
 		//does not own them just uses them
 		SDL_Surface* m_pBackBuffer{ nullptr };

@@ -24,7 +24,6 @@ float3 g_AmbientColor : AmbientColor;
 RasterizerState g_RasterizerState
 {
     CullMode = none;
-    FrontCounterClockwise = false;
 };
 
 BlendState g_BlendState{};

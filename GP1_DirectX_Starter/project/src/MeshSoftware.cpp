@@ -134,6 +134,14 @@ namespace dae
 		//dont know if this should be here but it fixes a chrash
 		if (w0 < 0 || w1 < 0 || w2 < 0) return;
 
+		const float signedArea = Vector2::Cross(V1 - V0, V2 - V0);
+
+		// Apply culling based on CullMode
+		if (m_CullMode == CullMode::Back && signedArea < 0)
+			return;
+		if (m_CullMode == CullMode::Front && signedArea > 0)
+			return;
+
 		const BoundaryBox boundaryBox{
 			{
 				std::clamp(std::min({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
@@ -149,6 +157,18 @@ namespace dae
 		{
 			for (int px = boundaryBox.Smallest.x; px <= boundaryBox.Biggest.x; ++px)
 			{
+				//get the index where in screen this pixel is
+				const int pixelIndex = px + py * m_Width;
+
+				if(m_ShowBoundingBox)
+				{
+					m_pBackBufferPixels[pixelIndex] = SDL_MapRGB(m_pBackBuffer->format,
+						static_cast<uint8_t>(255),
+						static_cast<uint8_t>(0),
+						static_cast<uint8_t>(0));
+
+					continue;
+				}
 
 				// Calculate the pixel center point in screen space
 				const Vector2 P(px + 0.5f, py + 0.5f);
@@ -174,9 +194,6 @@ namespace dae
 					weights.x / (1.f / m_pVertexOut[v0]->position.z) +
 					weights.y / (1.f / m_pVertexOut[v1]->position.z) +
 					weights.z / (1.f / m_pVertexOut[v2]->position.z));
-
-				//get the index where in screen this pixel is
-				const int pixelIndex = px + py * m_Width;
 
 				if (nonlinearDepth < 0 || nonlinearDepth > 1)
 					continue;
@@ -329,4 +346,29 @@ namespace dae
 			m_pVertexOut[i]->tangent = m_modelVertices[i].tangent;
 		}
 	}
+
+
+	void MeshSoftware::CycleShadingMode()
+	{
+		switch (m_CurrentLightingMode)
+		{
+		case LightingMode::ObservedArea:
+			m_CurrentLightingMode = LightingMode::Diffuse;
+			std::cout << "Current Lighting mode Diffuse" << std::endl;
+			break;
+		case LightingMode::Diffuse:
+			m_CurrentLightingMode = LightingMode::Specular;
+			std::cout << "Current Lighting mode Specular" << std::endl;
+			break;
+		case LightingMode::Specular:
+			m_CurrentLightingMode = LightingMode::Combined;
+			std::cout << "Current Lighting mode Combined" << std::endl;
+			break;
+		case LightingMode::Combined:
+			m_CurrentLightingMode = LightingMode::ObservedArea;
+			std::cout << "Current Lighting mode ObservedArea" << std::endl;
+			break;
+		}
+	}
+
 }

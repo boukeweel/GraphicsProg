@@ -23,6 +23,13 @@ namespace dae {
 		Texture* pGloss = nullptr;
 	};
 
+	enum class CullMode
+	{
+		Front,
+		Back,
+		None,
+	};
+
 	enum class primitiveTechnology
 	{
 		TriangleList,
@@ -44,6 +51,8 @@ namespace dae {
 
 		void AddYawRotation(float yawDelta);
 
+		void CycleCullMode();
+
 	protected:
 		void UpdateWorldMatrix();
 
@@ -64,5 +73,7 @@ namespace dae {
 		float m_YawRotation{0};
 		Vector3 m_Scale{1.f,1.f,1.f};
 		Vector3 m_Position{0.f,0.f,0.f};
+
+		CullMode m_CullMode{ CullMode::Front };
 	};
 }

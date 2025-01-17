@@ -31,6 +31,24 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 
+
+		//toggles
+		//both
+		void ToggleRotation();
+		void ToggleUseDirectX();
+		void CycleCullMode();
+		void ToggleUniformClearColor();
+		void ToggleNormalMap();
+
+		//hardware
+		void ToggleFireMesh();
+		void CycleTextureSampling();
+		
+		//software
+		void CycleShadingMode();
+		void ToggleDepthBuffer();
+		void ToggleBoundingBox();
+
 	private:
 		void InitializeBikeDirectX();
 		void InitializeBikeSoftware();
@@ -45,7 +63,17 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
-		bool m_UseDirectX{ false };
+		
+
+		//toggels
+		bool m_ShouldRotated{true};
+		bool m_UseDirectX{ true };
+		bool m_RenderFire{ true };
+		bool m_UseNormalMap{ true };
+		bool m_DepthBuffer{ false };
+		bool m_ShowBoundingBox{ false };
+
+		int m_TextureSampling = 0;
 
 		//Software
 		SDL_Surface* m_pFrontBuffer{ nullptr };
@@ -69,6 +97,7 @@ namespace dae
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
 		std::vector<MeshDirectX*> m_pDirectXMeshes;
+		MeshDirectX* m_pFireMesh;
 
 		EffectBase* m_pEffect{};
 		EffectOpaque* m_pEffectOpaque{};

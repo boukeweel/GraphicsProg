@@ -53,8 +53,6 @@ namespace dae {
 		m_pEffectOpaque->SetAmbientColor({ 0.025f,0.025f,0.025f });
 		m_pEffectOpaque->SetUseNormalMap(true);
 
-		m_pEffectOpaque->SetSampleState(0);
-
 		Material* pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_normal.png"),
@@ -69,7 +67,6 @@ namespace dae {
 		m_pEffectPartialCoverage = new EffectPartialCoverage{ m_pDevice,L"resources/PartialCoverage.fx" };
 
 		m_pEffectPartialCoverage->SetLightingDirection({ 0.577f,-0.577f,0.577f });
-		m_pEffectPartialCoverage->SetSampleState(0);
 
 		pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/fireFX_diffuse.png"),
@@ -78,9 +75,9 @@ namespace dae {
 			nullptr,
 		};
 
-		pMesh = new MeshDirectX{ m_pDevice,m_pEffectPartialCoverage,"resources/fireFX.obj",pMaterial };
+		m_pFireMesh = new MeshDirectX{ m_pDevice,m_pEffectPartialCoverage,"resources/fireFX.obj",pMaterial };
 
-		m_pDirectXMeshes.emplace_back(pMesh);
+		CycleTextureSampling();
 	}
 
 	void Renderer::InitializeBikeSoftware()
@@ -146,19 +143,16 @@ namespace dae {
 	{
 		m_pCamera->Update(pTimer);
 
-
-		float rotation{ PI * 2 * pTimer->GetElapsed() * (45.f / 360.f) };
-
-		if(m_UseDirectX)
+		if(m_ShouldRotated)
 		{
-
+			float rotation{ PI * 2 * pTimer->GetElapsed() * (45.f / 360.f) };
 			for (MeshDirectX* mesh : m_pDirectXMeshes)
 			{
 				mesh->AddYawRotation(rotation);
 			}
-		}
-		else
-		{
+			m_pFireMesh->AddYawRotation(rotation);
+
+
 			for (MeshSoftware* mesh : m_pSoftwareMeshes)
 			{
 				mesh->AddYawRotation(rotation);
@@ -185,7 +179,7 @@ namespace dae {
 			return;
 
 		//Clear RTV & DSV
-		constexpr float color[4] = { 0.f,0.f,0.3f,1.f };
+		constexpr float color[4] = { 0.39f,0.59f,0.93f,1.f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
@@ -197,6 +191,9 @@ namespace dae {
 		{
 			mesh->Render(m_pDeviceContext, m_pCamera->GetViewProjectionMatrix());
 		}
+
+		if(m_RenderFire)
+			m_pFireMesh->Render(m_pDeviceContext, m_pCamera->GetViewProjectionMatrix());
 
 		//Present backbuffer(Swap)
 		m_pSwapChain->Present(0, 0);
@@ -327,5 +324,106 @@ namespace dae {
 		SafeRelease(pDxgiFactory)
 
 		return result;
+	}
+
+
+	//Toggels
+
+	//both
+	void Renderer::ToggleRotation()
+	{
+		m_ShouldRotated = !m_ShouldRotated;
+
+		std::cout << "Rotating: " << (m_ShouldRotated ? "true" : "false") << "\n";
+	}
+	void Renderer::ToggleUseDirectX()
+	{
+		m_UseDirectX = !m_UseDirectX;
+
+		std::cout << "Using DirectX: " << (m_UseDirectX ? "true" : "false") << "\n";
+	}
+	void Renderer::CycleCullMode()
+	{
+		
+	}
+	void Renderer::ToggleUniformClearColor()
+	{
+
+	}
+
+	//hardware
+	void Renderer::ToggleFireMesh()
+	{
+		m_RenderFire = !m_RenderFire;
+
+		std::cout << "Rendering fire: " << (m_RenderFire ? "true" : "false") << "\n";
+	}
+	void Renderer::CycleTextureSampling()
+	{
+		switch (m_TextureSampling)
+		{
+		case 0:
+			std::cout << "Sample State: ANISOTROPIC" << std::endl;
+			m_pEffectOpaque->SetSampleState(0);
+			m_pEffectPartialCoverage->SetSampleState(0);
+			m_TextureSampling = 1;
+			break;
+		case 1:
+			std::cout << "Sample State: POINT" << std::endl;
+			m_pEffectOpaque->SetSampleState(1);
+			m_pEffectPartialCoverage->SetSampleState(1);
+			m_TextureSampling = 2;
+			break;
+		case 2:
+			std::cout << "Sample State: LINEAR" << std::endl;
+			m_pEffectOpaque->SetSampleState(2);
+			m_pEffectPartialCoverage->SetSampleState(2);
+			m_TextureSampling = 0;
+			break;
+		default:
+			break;
+		}
+	}
+
+	//software
+	void Renderer::CycleShadingMode()
+	{
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->CycleShadingMode();
+		}
+	}
+	void Renderer::ToggleDepthBuffer()
+	{
+		m_DepthBuffer = !m_DepthBuffer;
+
+		std::cout << "DepthBuffer: " << (m_DepthBuffer ? "true" : "false") << "\n";
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->ToggleToDepthBuffer();
+		}
+	}
+	void Renderer::ToggleNormalMap()
+	{
+		m_UseNormalMap = !m_UseNormalMap;
+
+		std::cout << "Using NormalMap: " << (m_UseNormalMap ? "true" : "false") << "\n";
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->ToggleNormalMapping();
+		}
+	}
+	void Renderer::ToggleBoundingBox()
+	{
+		m_ShowBoundingBox = !m_ShowBoundingBox;
+
+		std::cout << "Show BoundingBox: " << (m_ShowBoundingBox ? "true" : "false") << "\n";
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->ToggleShowBoundingBox();
+		}
 	}
 }

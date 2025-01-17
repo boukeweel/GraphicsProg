@@ -31,6 +31,8 @@ namespace dae
 		m_pEffects->SetSpecularMap(m_pMaterial->pSpecular);
 		m_pEffects->SetGlossMap(m_pMaterial->pGloss);
 
+		m_pEffects->SetCullingMode(m_CullMode);
+
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		pDeviceContext->IASetInputLayout(m_pInputLayout);
