@@ -48,6 +48,8 @@ namespace dae {
 		}
 		void CycleShadingMode();
 
+		void SetCullMode(CullMode mode);
+
 	private:
 		void InitializeMesh();
 
@@ -68,7 +70,7 @@ namespace dae {
 
 		Vector3 m_LightDirection{ .577f,-.577f,.577f };
 		float m_Shininess{ 25.f };
-		float m_PhongSpecular{ 0.5f };
+		float m_PhongSpecular{ 1.f };
 		float m_DiffuseReflectance{ 7.f };
 
 		//toggels
@@ -85,6 +87,8 @@ namespace dae {
 		bool m_NormalMapActive{ true };
 		bool m_DepthToggle{ false };
 		bool m_ShowBoundingBox{ false };
+
+		CullMode m_CullMode{ CullMode::None };
 
 		//does not own them just uses them
 		SDL_Surface* m_pBackBuffer{ nullptr };

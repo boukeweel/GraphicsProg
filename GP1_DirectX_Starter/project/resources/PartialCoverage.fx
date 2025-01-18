@@ -10,13 +10,6 @@ Texture2D g_DiffuseMap : DiffuseMap;
 
 SamplerState g_TextureSampler : Sampler;
 
-
-RasterizerState g_RasterizerState
-{
-    CullMode = none;
-    FrontCounterClockwise = false;
-};
-
 BlendState g_BlendState
 {
     BlendEnable[0] = true;
@@ -101,7 +94,6 @@ technique11 DefaultTechnique
 {
     pass P0
     {
-        SetRasterizerState(g_RasterizerState);
         SetDepthStencilState(g_DepthStencilState, 0);
         SetBlendState(g_BlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
 

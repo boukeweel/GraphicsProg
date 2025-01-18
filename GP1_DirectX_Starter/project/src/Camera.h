@@ -47,8 +47,8 @@ namespace dae
 		float m_TotalPitch{};
 		float m_TotalYaw{};
 
-		const float m_MoveSpeedKey{ 5.f };
-		const float m_MoveSpeedMouse{ 0.5f };
+		const float m_MoveSpeedKey{ 100.f };
+		const float m_MoveSpeedMouse{ 100.f };
 		const float m_RotatedSpeed{ 0.01f };
 
 		Matrix m_InvViewMatrix{};

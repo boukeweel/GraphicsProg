@@ -50,25 +50,6 @@ namespace dae
 		UpdateWorldMatrix();
 	}
 
-	void Mesh::CycleCullMode()
-	{
-		switch (m_CullMode)
-		{
-		case CullMode::None:
-			m_CullMode = CullMode::Front;
-			std::cout << "Current CullMode: Front\n";
-			break;
-		case CullMode::Front:
-			m_CullMode = CullMode::Back;
-			std::cout << "Current CullMode: Back\n";
-			break;
-		case CullMode::Back:
-			m_CullMode = CullMode::None;
-			std::cout << "Current CullMode: None\n";
-			break;
-		}
-	}
-
 	void Mesh::UpdateWorldMatrix()
 	{
 		const Matrix translationMatrix = Matrix::CreateTranslation(m_Position);

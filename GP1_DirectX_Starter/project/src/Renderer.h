@@ -1,5 +1,11 @@
 #pragma once
+#include "EffectBase.h"
 
+
+namespace dae
+{
+	enum class CullMode;
+}
 
 namespace dae
 {
@@ -73,7 +79,17 @@ namespace dae
 		bool m_DepthBuffer{ false };
 		bool m_ShowBoundingBox{ false };
 
+		CullMode m_CullMode{ CullMode::None };
+
 		int m_TextureSampling = 0;
+
+		bool m_UseUniformColor{false};
+
+		ColorRGB m_CurrentBackGroundColor;
+
+		ColorRGB m_UniformColor{ 0.1f,0.1f,0.1f };
+		ColorRGB m_HardWareColor{ .39f,.59f,.93f };
+		ColorRGB m_SoftWareColor{ .39f,.39f,.39f };
 
 		//Software
 		SDL_Surface* m_pFrontBuffer{ nullptr };

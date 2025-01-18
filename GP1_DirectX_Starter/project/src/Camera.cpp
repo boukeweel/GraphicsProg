@@ -46,25 +46,38 @@ namespace dae
 
 		//Keyboard Input
 		const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
+		float moveSpeedKey{ m_MoveSpeedKey };
+		float moveSpeedMouse{ m_MoveSpeedMouse };
 
+		bool shiftPressed{ false };
+		if (pKeyboardState[SDL_SCANCODE_LSHIFT])
+		{
+			shiftPressed = true;
+		}
+
+		if(shiftPressed)
+		{
+			moveSpeedKey *= 2;
+			moveSpeedMouse *= 2;
+		}
 
 		if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
-			InputVector.z -= 1;
+			InputVector.z -= 1 * moveSpeedKey;
 
 		if (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP])
-			InputVector.z += 1;
+			InputVector.z += 1 * moveSpeedKey;
 
 		if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT])
-			InputVector.x -= 1;
+			InputVector.x -= 1 * moveSpeedKey;
 
 		if (pKeyboardState[SDL_SCANCODE_D] || pKeyboardState[SDL_SCANCODE_RIGHT])
-			InputVector.x += 1;
+			InputVector.x += 1 * moveSpeedKey;
 
 		if (pKeyboardState[SDL_SCANCODE_Q])
-			InputVector.y -= 1;
+			InputVector.y -= 1 * moveSpeedKey;
 
 		if (pKeyboardState[SDL_SCANCODE_E])
-			InputVector.y += 1;
+			InputVector.y += 1 * moveSpeedKey;
 
 		//Mouse Input
 		int mouseX{}, mouseY{};
@@ -75,11 +88,11 @@ namespace dae
 
 		if (MouseRightPressed && MouseLeftPressed)
 		{
-			InputVector.y -= mouseY * m_MoveSpeedMouse;
+			InputVector.y -= mouseY * moveSpeedMouse;
 		}
 		else if (!MouseRightPressed && MouseLeftPressed)
 		{
-			InputVector.z -= mouseY * m_MoveSpeedMouse;
+			InputVector.z -= mouseY * moveSpeedMouse;
 			m_TotalYaw -= mouseX * m_RotatedSpeed;
 		}
 		else if (MouseRightPressed && !MouseLeftPressed)
@@ -102,7 +115,7 @@ namespace dae
 
 		InputVector = pitchYawRotation.TransformVector(InputVector);
 
-		m_Origin += InputVector * deltaTime * m_MoveSpeedKey;
+		m_Origin += InputVector * deltaTime;
 
 		//Update Matrices
 		CalculateViewMatrix();

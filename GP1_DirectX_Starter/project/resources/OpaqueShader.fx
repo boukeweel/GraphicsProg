@@ -21,11 +21,6 @@ float g_PhongSpecular : PhongSpecular;
 float3 g_AmbientColor : AmbientColor;
 
 
-RasterizerState g_RasterizerState
-{
-    CullMode = none;
-};
-
 BlendState g_BlendState{};
 
 DepthStencilState g_DepthStencilState{};
@@ -123,7 +118,6 @@ technique11 DefaultTechnique
 {
     pass P0
     {
-        SetRasterizerState(g_RasterizerState);
         SetDepthStencilState(g_DepthStencilState, 0);
         SetBlendState(g_BlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
 

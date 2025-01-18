@@ -71,7 +71,7 @@ namespace dae
 			vertex->tangent = m_WorldMatrix.TransformVector(vertex->tangent).Normalized();
 
 			//get the viewDirection
-			vertex->viewDirection = (vertex->position.GetXYZ() - pCamera->GetOrigin()).Normalized();
+			vertex->viewDirection = (pCamera->GetOrigin() - vertex->position.GetXYZ()).Normalized();
 
 			vertex->position = pCamera->GetViewProjectionMatrix().TransformPoint(vertex->position);
 
@@ -134,14 +134,6 @@ namespace dae
 		//dont know if this should be here but it fixes a chrash
 		if (w0 < 0 || w1 < 0 || w2 < 0) return;
 
-		const float signedArea = Vector2::Cross(V1 - V0, V2 - V0);
-
-		// Apply culling based on CullMode
-		if (m_CullMode == CullMode::Back && signedArea < 0)
-			return;
-		if (m_CullMode == CullMode::Front && signedArea > 0)
-			return;
-
 		const BoundaryBox boundaryBox{
 			{
 				std::clamp(std::min({V0.x, V1.x, V2.x}), 0.0f, static_cast<float>(m_Width - 1)),
@@ -168,18 +160,36 @@ namespace dae
 						static_cast<uint8_t>(0));
 
 					continue;
-				}
+				} 
 
 				// Calculate the pixel center point in screen space
 				const Vector2 P(px + 0.5f, py + 0.5f);
 
-				// Calculate sub-areas for barycentric coordinates
-				float W0 = Vector2::Cross(V2 - V1, P - V1); // Opposite V0
-				if (W0 <= 0) continue;
-				float W1 = Vector2::Cross(V0 - V2, P - V2); // Opposite V1
-				if (W1 <= 0) continue;
-				float W2 = Vector2::Cross(V1 - V0, P - V0); // Opposite V2
-				if (W2 <= 0) continue;
+				float W0;
+				float W1;
+				float W2;
+
+				switch (m_CullMode)
+				{
+					//If I dont check for any value it will give error. so none is just back :)
+				case CullMode::None:
+				case CullMode::Back:
+					W0 = Vector2::Cross(V2 - V1, P - V1); // Opposite V0
+					if (W0 <= 0) continue;
+					W1 = Vector2::Cross(V0 - V2, P - V2); // Opposite V1
+					if (W1 <= 0) continue;
+					W2 = Vector2::Cross(V1 - V0, P - V0); // Opposite V2
+					if (W2 <= 0) continue;
+					break;
+				case CullMode::Front:
+					W0 = Vector2::Cross(V2 - V1, P - V1); // Opposite V0
+					if (W0 >= 0) continue;
+					W1 = Vector2::Cross(V0 - V2, P - V2); // Opposite V1
+					if (W1 >= 0) continue;
+					W2 = Vector2::Cross(V1 - V0, P - V0); // Opposite V2
+					if (W2 >= 0) continue;
+					break;
+				}
 
 				const float totalArea = W0 + W1 + W2;
 				const Vector3 weights
@@ -259,7 +269,7 @@ namespace dae
 		float PhongExponent{ m_Shininess };
 
 		if (m_pMaterial->pDiffuse)
-			sampleDDiffuseColor = m_pMaterial->pDiffuse->Sample(vertex_out.uv);
+			sampleDDiffuseColor *= m_pMaterial->pDiffuse->Sample(vertex_out.uv);
 
 		if (m_pMaterial->pSpecular)
 			PhongSpecular *= m_pMaterial->pSpecular->Sample(vertex_out.uv).r; //only one is needed can be r,g or b
@@ -346,8 +356,6 @@ namespace dae
 			m_pVertexOut[i]->tangent = m_modelVertices[i].tangent;
 		}
 	}
-
-
 	void MeshSoftware::CycleShadingMode()
 	{
 		switch (m_CurrentLightingMode)
@@ -369,6 +377,10 @@ namespace dae
 			std::cout << "Current Lighting mode ObservedArea" << std::endl;
 			break;
 		}
+	}
+	void MeshSoftware::SetCullMode(CullMode mode)
+	{
+		m_CullMode = mode;
 	}
 
 }

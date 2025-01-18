@@ -4,6 +4,13 @@
 namespace dae {
 	class Texture;
 
+	enum class CullMode
+	{
+		Front,
+		Back,
+		None,
+	};
+
 	class EffectBase {
 	public:
 		EffectBase(ID3D11Device* pDevice, const std::wstring& path);
@@ -27,6 +34,9 @@ namespace dae {
 		void SetSpecularMap(const Texture* pSpecularTexture) const;
 		void SetGlossMap(const Texture* pGlossTexture) const;
 
+		void CreateRasterizerStates(ID3D11RasterizerState** pRSNone, ID3D11RasterizerState** pRSFront, ID3D11RasterizerState** pRSBack);
+		void SetCullMode(ID3D11DeviceContext* pDeviceContext, CullMode cullMode);
+
 	protected:
 		ID3DX11Effect* m_pEffect{};
 	private:
@@ -44,6 +54,10 @@ namespace dae {
 		ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable{};
 		ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable{};
 		ID3DX11EffectShaderResourceVariable* m_pGlossMapVariable{};
+
+		ID3D11RasterizerState* m_pRSNone{nullptr};
+		ID3D11RasterizerState* m_pRSFront{ nullptr };
+		ID3D11RasterizerState* m_pRSBack{ nullptr };
 
 		ID3DX11EffectVectorVariable* m_pLightDirectionVariable{};
 		ID3DX11EffectVectorVariable* m_pCameraOriginVariable{};

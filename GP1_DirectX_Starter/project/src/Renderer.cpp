@@ -40,6 +40,11 @@ namespace dae {
 		InitializeBikeSoftware();
 
 		m_pCamera = new Camera{ {0,0,-50.f},45.f,static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+
+		if (m_UseDirectX)
+			m_CurrentBackGroundColor = m_HardWareColor;
+		else
+			m_CurrentBackGroundColor = m_SoftWareColor;
 	}
 
 	void Renderer::InitializeBikeDirectX()
@@ -52,6 +57,7 @@ namespace dae {
 		m_pEffectOpaque->SetPhongExponent(25.f);
 		m_pEffectOpaque->SetAmbientColor({ 0.025f,0.025f,0.025f });
 		m_pEffectOpaque->SetUseNormalMap(true);
+		m_pEffectOpaque->SetCullMode(m_pDeviceContext, CullMode::None);
 
 		Material* pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/vehicle_diffuse.png"),
@@ -67,6 +73,7 @@ namespace dae {
 		m_pEffectPartialCoverage = new EffectPartialCoverage{ m_pDevice,L"resources/PartialCoverage.fx" };
 
 		m_pEffectPartialCoverage->SetLightingDirection({ 0.577f,-0.577f,0.577f });
+		m_pEffectPartialCoverage->SetCullMode(m_pDeviceContext, CullMode::None);
 
 		pMaterial = new Material{
 			Texture::LoadFromFile(m_pDevice,"resources/fireFX_diffuse.png"),
@@ -179,7 +186,7 @@ namespace dae {
 			return;
 
 		//Clear RTV & DSV
-		constexpr float color[4] = { 0.39f,0.59f,0.93f,1.f };
+		const float color[4] = { m_CurrentBackGroundColor.r,m_CurrentBackGroundColor.g,m_CurrentBackGroundColor.b,1.f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_DEPTH, 1.f, 0.f);
 
@@ -206,7 +213,7 @@ namespace dae {
 		//fill the whole depth buffer with max values so it can become smaller
 		std::fill_n(m_pDepthBufferPixels, m_Width * m_Height, std::numeric_limits<float>::max());
 		// Clear screen buffer
-		SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 100, 100, 100));
+		SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, m_CurrentBackGroundColor.r * 255, m_CurrentBackGroundColor.g * 255, m_CurrentBackGroundColor.b * 255));
 
 		for (MeshSoftware* mesh : m_pSoftwareMeshes)
 		{
@@ -330,25 +337,67 @@ namespace dae {
 	//Toggels
 
 	//both
+	void Renderer::ToggleUseDirectX()
+	{
+		m_UseDirectX = !m_UseDirectX;
+
+		std::cout << "Using DirectX: " << (m_UseDirectX ? "true" : "false") << "\n";
+
+		if(!m_UseUniformColor)
+		{
+			if (m_UseDirectX)
+				m_CurrentBackGroundColor = m_HardWareColor;
+			else
+				m_CurrentBackGroundColor = m_SoftWareColor;
+		}
+	}
 	void Renderer::ToggleRotation()
 	{
 		m_ShouldRotated = !m_ShouldRotated;
 
 		std::cout << "Rotating: " << (m_ShouldRotated ? "true" : "false") << "\n";
 	}
-	void Renderer::ToggleUseDirectX()
-	{
-		m_UseDirectX = !m_UseDirectX;
-
-		std::cout << "Using DirectX: " << (m_UseDirectX ? "true" : "false") << "\n";
-	}
 	void Renderer::CycleCullMode()
 	{
-		
+		switch (m_CullMode)
+		{
+		case CullMode::None:
+			m_CullMode = CullMode::Front;
+			std::wcout << L"Cull Mode: Front\n";
+			break;
+		case CullMode::Front:
+			m_CullMode = CullMode::Back;
+			std::wcout << L"Cull Mode: Back\n";
+			break;
+		case CullMode::Back:
+			m_CullMode = CullMode::None;
+			std::wcout << L"Cull Mode: None\n";
+			break;
+		}
+
+		//You can technology only have to call one but this is cleaner 
+		m_pEffectOpaque->SetCullMode(m_pDeviceContext, m_CullMode);
+		m_pEffectPartialCoverage->SetCullMode(m_pDeviceContext, m_CullMode);
+
+		for (MeshSoftware* mesh : m_pSoftwareMeshes)
+		{
+			mesh->SetCullMode(m_CullMode);
+		}
 	}
 	void Renderer::ToggleUniformClearColor()
 	{
+		m_UseUniformColor = !m_UseUniformColor;
 
+		if(m_UseUniformColor)
+		{
+			m_CurrentBackGroundColor = m_UniformColor;
+		}else
+		{
+			if (m_UseDirectX)
+				m_CurrentBackGroundColor = m_HardWareColor;
+			else
+				m_CurrentBackGroundColor = m_SoftWareColor;
+		}
 	}
 
 	//hardware
