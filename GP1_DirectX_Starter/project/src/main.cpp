@@ -40,6 +40,25 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
+	std::cout << "------------------------------------------\n";
+	std::cout << "BOTH\n";
+	std::cout << "Toggle DirectX/Software: F1 \n";
+	std::cout << "Toggle Rotation: F2 \n";
+	std::cout << "Cycle Culling Mode: F9 \n";
+	std::cout << "Toggle Uniform Clear Color: F10 \n";
+	std::cout << "Toggle Print Fps: F11 \n";
+	std::cout << "------------------------------------------\n";
+	std::cout << "HARDWARE\n";
+	std::cout << "Toggle Fire: F3 \n";
+	std::cout << "Cycle Texture Sampling: F4 \n";
+	std::cout << "------------------------------------------\n";
+	std::cout << "SOFTWARE\n";
+	std::cout << "Cycle Shading Mode: F5 \n";
+	std::cout << "Toggle NormalMap: F6 \n";
+	std::cout << "Toggle DepthBuffer Visualization: F7 \n";
+	std::cout << "Toggle BoundingBox Visualization: F8 \n";
+	std::cout << "------------------------------------------\n";
+
 	//Start loop
 	pTimer->Start();
 	float printTimer = 0.f;
@@ -100,6 +119,8 @@ int main(int argc, char* args[])
 				else if (e.key.keysym.scancode == SDL_SCANCODE_F11)
 				{
 					ShowFps = !ShowFps;
+
+					std::cout << "Show FPS: " << (ShowFps ? "true" : "false") << "\n";
 				}
 				break;
 			default: ;
@@ -108,7 +129,6 @@ int main(int argc, char* args[])
 
 		//--------- Update ---------
 		pRenderer->Update(pTimer);
-
 		//--------- Render ---------
 		pRenderer->Render();
 

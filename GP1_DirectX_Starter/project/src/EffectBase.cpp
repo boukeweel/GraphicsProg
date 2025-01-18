@@ -34,22 +34,13 @@ namespace dae
 		if (!m_pLightDirectionVariable->IsValid())
 			std::wcout << L"m_pLightDirectionVariable not valid \n";
 
-
 		m_pDiffuseMapVariable = m_pEffect->GetVariableByName("g_DiffuseMap")->AsShaderResource();
 		if (!m_pDiffuseMapVariable->IsValid())
 			std::wcout << L"m_pDiffuseMapVariable not valid \n";
 
 		m_pNormalMapVariable = m_pEffect->GetVariableByName("g_NormalMap")->AsShaderResource();
-		if (!m_pNormalMapVariable->IsValid())
-			std::wcout << L"m_pNormalMapVariable not valid \n";
-
 		m_pSpecularMapVariable = m_pEffect->GetVariableByName("g_SpecularMap")->AsShaderResource();
-		if (!m_pSpecularMapVariable->IsValid())
-			std::wcout << L"m_pSpecularMapVariable not valid \n";
-
 		m_pGlossMapVariable = m_pEffect->GetVariableByName("g_GlossMap")->AsShaderResource();
-		if (!m_pGlossMapVariable->IsValid())
-			std::wcout << L"m_pGlossMapVariable not valid \n";
 
 		CreateRasterizerStates(&m_pRSNone, &m_pRSFront, &m_pRSBack);
 	}
